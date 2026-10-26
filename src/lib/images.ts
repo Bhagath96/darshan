@@ -13,6 +13,9 @@ const images: Record<string, string> = Object.fromEntries(
   Object.entries(files).map(([path, url]) => [path.replace(/^.*\/(.+)\.webp$/, '$1'), url]),
 )
 
+/** Every photo key, for the photo pickers in the admin portal. */
+export const IMAGE_KEYS: string[] = Object.keys(images).sort()
+
 /** Photo to use when an item names one that is not (yet) in the folder. */
 const FALLBACK = 'lamp'
 

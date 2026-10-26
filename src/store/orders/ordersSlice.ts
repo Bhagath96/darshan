@@ -2,6 +2,7 @@ import { createSlice, nanoid, type PayloadAction } from '@reduxjs/toolkit'
 import { logoutRequested, sessionExpired } from '../auth/authSlice'
 import { asyncState, type AppError, type AsyncState } from '../types'
 import type { RootState } from '../rootReducer'
+import { orderRemoved, orderReplaced } from '../admin/manageActions'
 import type { Order, OrderQuery, OrderStatus, Paged, RequestStatus } from '@/types'
 
 export interface OrdersState extends AsyncState<Paged<Order> | null> {
@@ -82,7 +83,20 @@ const ordersSlice = createSlice({
   },
   extraReducers: (builder) => {
     // Never show one user's list to the next person on a shared device.
-    builder.addCase(logoutRequested, () => initialState).addCase(sessionExpired, () => initialState)
+    builder
+      .addCase(logoutRequested, () => initialState)
+      .addCase(sessionExpired, () => initialState)
+      .addCase(orderReplaced, (state, action) => {
+        const items = state.data?.items
+        const i = items?.findIndex((o) => o.id === action.payload.id) ?? -1
+        if (items && i >= 0) items[i] = action.payload
+      })
+      .addCase(orderRemoved, (state, action) => {
+        if (!state.data) return
+        const before = state.data.items.length
+        state.data.items = state.data.items.filter((o) => o.id !== action.payload)
+        state.data.total -= before - state.data.items.length
+      })
   },
 })
 

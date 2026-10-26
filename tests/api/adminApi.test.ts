@@ -86,10 +86,18 @@ describe('bookingApi.updateSlot', () => {
     ).rejects.toMatchObject({ code: 'CONFLICT' })
   })
 
-  it('is admin only', async () => {
+  it("lets staff change their own temple's slots, but no other temple's", async () => {
     actAs('staff')
     await expect(
       bookingApi.updateSlot({ slotId: TEN_LEFT, isBlocked: true }),
+    ).resolves.toMatchObject({ isBlocked: true })
+    await expect(
+      bookingApi.updateSlot({ slotId: `sl-tm-sastha-${TOMORROW}-0800`, isBlocked: true }),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' })
+
+    actAs('devotee')
+    await expect(
+      bookingApi.updateSlot({ slotId: TEN_LEFT, isBlocked: false }),
     ).rejects.toMatchObject({ code: 'FORBIDDEN' })
   })
 })
@@ -104,7 +112,7 @@ describe('templeApi.updateOffering', () => {
     expect(offerings.find((o) => o.id === 'tm-krishna--archana')?.isActive).toBe(false)
   })
 
-  it('rejects a non-whole or zero price, and staff edits', async () => {
+  it("rejects a non-whole or zero price, and staff edits to another temple's offering", async () => {
     actAs('admin')
     await expect(
       templeApi.updateOffering({ offeringId: 'tm-krishna--pushpanjali', price: 0 }),
@@ -119,6 +127,9 @@ describe('templeApi.updateOffering', () => {
     actAs('staff')
     await expect(
       templeApi.updateOffering({ offeringId: 'tm-krishna--pushpanjali', price: 35 }),
+    ).resolves.toMatchObject({ price: 35 })
+    await expect(
+      templeApi.updateOffering({ offeringId: 'tm-sastha--pushpanjali', price: 35 }),
     ).rejects.toMatchObject({
       code: 'FORBIDDEN',
     })

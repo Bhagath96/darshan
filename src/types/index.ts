@@ -284,3 +284,72 @@ export interface DashboardStats {
 
 /** Standard shape for any piece of server data held in the store. */
 export type RequestStatus = 'idle' | 'loading' | 'success' | 'error'
+
+/** Admin: a new temple, or the full set of details when editing one. */
+export interface TempleInput {
+  name: Localized
+  location: Localized
+  deity: Localized
+  about: Localized
+  address: Localized
+  /** Photo key from src/assets/images, e.g. "temple-krishna". */
+  image: string
+  timings: string
+  contactPhone: string
+  schedule: ScheduleItem[]
+}
+
+/** Staff/admin: a new offering, or the full set of details when editing one. */
+export interface OfferingInput {
+  templeId: string
+  name: Localized
+  description: Localized
+  price: number
+  category: OfferingCategory
+  isActive: boolean
+  image: string
+}
+
+/** Staff/admin: a new darshan slot. */
+export interface SlotInput {
+  templeId: string
+  date: IsoDate
+  /** IST start time, HH:mm. */
+  time: string
+  durationMinutes: number
+  totalCapacity: number
+}
+
+/** Staff/admin correction to a darshan booking. */
+export interface BookingUpdate {
+  devoteeName: string
+  phone: string
+  ticketCount: number
+}
+
+/** Staff/admin correction to a vazhipadu order. */
+export interface OrderUpdate {
+  devoteeName: string
+  phone: string
+  star: Nakshatra
+  offeringDate: IsoDate
+  status: OrderStatus
+}
+
+/** Admin search over user accounts. */
+export interface UserQuery {
+  role?: UserRole
+  /** Part of the name, username or mobile number. */
+  q?: string
+}
+
+/** Admin: a new account, or changes to one. On edit, an empty password keeps the old one. */
+export interface UserInput {
+  name: string
+  phone: string
+  username: string
+  role: UserRole
+  /** Required for staff; null for devotees and admins. */
+  templeId: string | null
+  password: string
+}

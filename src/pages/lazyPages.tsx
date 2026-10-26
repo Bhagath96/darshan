@@ -52,3 +52,9 @@ export const AdminRatesPage = lazy(() =>
 export const AdminNoticesPage = lazy(() =>
   import('@/pages/admin/AdminNoticesPage').then(pick('AdminNoticesPage')),
 )
+export const AdminTemplesPage = lazy(() =>
+  import('@/pages/admin/AdminTemplesPage').then(pick('AdminTemplesPage')),
+)
+export const AdminUsersPage = lazy(() =>
+  import('@/pages/admin/AdminUsersPage').then(pick('AdminUsersPage')),
+)

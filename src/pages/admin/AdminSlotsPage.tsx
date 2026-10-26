@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Lock, LockOpen } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { EditorDialog } from '@/components/admin/EditorDialog'
+import { AddButton, DeleteButton } from '@/components/admin/fields'
 import { RBody, RCell, RHead, RHeader, RRow, RTable } from '@/components/admin/ResponsiveTable'
 import { TempleScopeField } from '@/components/admin/TempleScopeField'
 import { FormField } from '@/components/common/FormField'
@@ -9,21 +13,129 @@ import { EmptyState, ErrorState, LoadingState } from '@/components/common/states
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useFieldMessage } from '@/hooks/useFieldMessage'
+import { useManagedTempleId } from '@/hooks/useManagedTempleId'
 import { useQueryParams } from '@/hooks/useQueryParams'
 import { useNow } from '@/hooks/useNow'
-import { useTemples } from '@/hooks/useTemples'
-import { useT } from '@/i18n'
-import { MAX_SLOT_CAPACITY } from '@/lib/constants'
+import { useT, type MessageKey } from '@/i18n'
+import {
+  DEFAULT_SLOT_MINUTES,
+  MAX_SLOT_CAPACITY,
+  SLOT_DAYS,
+  SLOT_MAX_MINUTES,
+  SLOT_MIN_MINUTES,
+} from '@/lib/constants'
 import { addDays, todayIST } from '@/lib/date'
+import { z } from '@/lib/zod'
+import { slotCreateRequested, slotDeleteRequested } from '@/store/admin/manageActions'
 import {
   adminSlotsRequested,
   selectAdminSlots,
   slotUpdateRequested,
 } from '@/store/admin/catalogSlice'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import type { DarshanSlot } from '@/types'
+import type { DarshanSlot, IsoDate } from '@/types'
 
-const SLOT_DAYS = 7
+const key = (k: MessageKey) => k
+const wholeIn = (min: number, max: number, message: MessageKey) =>
+  z.string().refine((v) => /^\d+$/.test(v) && Number(v) >= min && Number(v) <= max, { message })
+
+const slotSchema = z.object({
+  date: z.string(),
+  time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, key('manage.timeInvalid')),
+  duration: wholeIn(SLOT_MIN_MINUTES, SLOT_MAX_MINUTES, key('manage.durationInvalid')),
+  capacity: wholeIn(1, MAX_SLOT_CAPACITY, key('manage.slotCapacityInvalid')),
+})
+type SlotValues = z.infer<typeof slotSchema>
+
+function SlotForm({
+  formId,
+  templeId,
+  day,
+  days,
+}: {
+  formId: string
+  templeId: string
+  day: IsoDate
+  days: IsoDate[]
+}) {
+  const { t, date } = useT()
+  const dispatch = useAppDispatch()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SlotValues>({
+    resolver: zodResolver(slotSchema),
+    defaultValues: {
+      date: day,
+      time: '',
+      duration: String(DEFAULT_SLOT_MINUTES),
+      capacity: '100',
+    },
+  })
+  const message = useFieldMessage(errors)
+  const onSubmit = handleSubmit((v) =>
+    dispatch(
+      slotCreateRequested({
+        templeId,
+        date: v.date,
+        time: v.time,
+        durationMinutes: Number(v.duration),
+        totalCapacity: Number(v.capacity),
+      }),
+    ),
+  )
+  return (
+    <form id={formId} noValidate onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
+      <FormField id="slot-date" label={t('common.date')}>
+        {(c) => (
+          <NativeSelect {...c} {...register('date')}>
+            {days.map((d) => (
+              <option key={d} value={d}>
+                {date(d)}
+              </option>
+            ))}
+          </NativeSelect>
+        )}
+      </FormField>
+      <FormField
+        id="slot-time"
+        label={t('manage.startTime')}
+        hint={t('manage.istHint')}
+        error={message('time')}
+      >
+        {(c) => <Input {...c} {...register('time')} type="time" className="h-11" />}
+      </FormField>
+      <FormField id="slot-duration" label={t('manage.duration')} error={message('duration')}>
+        {(c) => (
+          <Input
+            {...c}
+            {...register('duration')}
+            type="number"
+            inputMode="numeric"
+            min={SLOT_MIN_MINUTES}
+            max={SLOT_MAX_MINUTES}
+            className="h-11"
+          />
+        )}
+      </FormField>
+      <FormField id="slot-capacity" label={t('adminSlots.capacity')} error={message('capacity')}>
+        {(c) => (
+          <Input
+            {...c}
+            {...register('capacity')}
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={MAX_SLOT_CAPACITY}
+            className="h-11"
+          />
+        )}
+      </FormField>
+    </form>
+  )
+}
 
 function SlotRow({ slot }: { slot: DarshanSlot }) {
   const { t, time } = useT()
@@ -120,6 +232,15 @@ function SlotRow({ slot }: { slot: DarshanSlot }) {
             {slot.isBlocked ? <LockOpen aria-hidden="true" /> : <Lock aria-hidden="true" />}
             {slot.isBlocked ? t('adminSlots.open') : t('adminSlots.close')}
           </Button>
+          <DeleteButton
+            label={t('manage.deleteSlotOf', { time: label })}
+            title={t('manage.deleteSlotTitle', { time: label })}
+            description={
+              booked > 0 ? t('manage.deleteSlotBooked', { booked }) : t('manage.deleteSlotText')
+            }
+            disabled={saving}
+            onConfirm={() => dispatch(slotDeleteRequested(slot.id))}
+          />
         </span>
       </RCell>
     </RRow>
@@ -130,14 +251,11 @@ export function AdminSlotsPage() {
   const { t, date, err } = useT()
   const dispatch = useAppDispatch()
   const slots = useAppSelector(selectAdminSlots)
-  const temples = useTemples()
   const { get, update } = useQueryParams()
 
   const today = todayIST()
   const days = Array.from({ length: SLOT_DAYS }, (_, i) => addDays(today, i))
-  const templeId = temples.data.some((x) => x.id === get('temple'))
-    ? get('temple')
-    : (temples.data[0]?.id ?? '')
+  const templeId = useManagedTempleId()
   const day = days.includes(get('date')) ? get('date') : today
 
   const load = () => {
@@ -178,6 +296,15 @@ export function AdminSlotsPage() {
           )}
         </FormField>
       </form>
+      {templeId && (
+        <EditorDialog
+          trigger={<AddButton>{t('manage.addSlot')}</AddButton>}
+          title={t('manage.addSlot')}
+          submitLabel={t('manage.create')}
+        >
+          {(formId) => <SlotForm formId={formId} templeId={templeId} day={day} days={days} />}
+        </EditorDialog>
+      )}
 
       {slots.status === 'error' && slots.error ? (
         <ErrorState message={err(slots.error)} onRetry={load} />

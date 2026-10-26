@@ -3,14 +3,8 @@ import { getDb } from './db'
 import { simulate } from './mockClient'
 import { issueToken, requireUser, toAuthUser, userFromToken } from './session'
 import type { StoredUser } from './seed'
-import { saveStoredUsers } from './userStore'
-import { normalizePhone } from '@/lib/phone'
-import {
-  isStrongPassword,
-  isValidName,
-  isValidUsername,
-  PASSWORD_MIN_LENGTH,
-} from '@/lib/validators'
+import { persistUsers, validName, validPhone } from './validate'
+import { isStrongPassword, isValidUsername, PASSWORD_MIN_LENGTH } from '@/lib/validators'
 import type {
   AuthUser,
   ChangePasswordRequest,
@@ -27,23 +21,6 @@ const WRONG_PORTAL: Record<LoginRequest['portal'], string> = {
 
 const fitsPortal = (user: StoredUser, portal: LoginRequest['portal']) =>
   portal === 'staff' ? user.role !== 'DEVOTEE' : user.role === 'DEVOTEE'
-
-function persistUsers() {
-  saveStoredUsers(getDb().users)
-}
-
-function validName(name: string): string {
-  const trimmed = name.trim().replace(/\s+/g, ' ')
-  if (!isValidName(trimmed))
-    throw new ApiError('VALIDATION', 'Please enter your name (letters only, 2–60 characters).')
-  return trimmed
-}
-
-function validPhone(phone: string): string {
-  const normalized = normalizePhone(phone)
-  if (!normalized) throw new ApiError('VALIDATION', 'Please enter a valid 10-digit mobile number.')
-  return normalized
-}
 
 /** Checks the password, then the portal. A wrong password never reveals the account type. */
 export function login({ username, password, portal }: LoginRequest): Promise<Session> {

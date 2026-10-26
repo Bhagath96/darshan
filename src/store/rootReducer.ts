@@ -2,6 +2,8 @@ import { combineReducers } from '@reduxjs/toolkit'
 import bookings from './admin/bookingsSlice'
 import catalog from './admin/catalogSlice'
 import dashboard from './admin/dashboardSlice'
+import editor from './admin/editorSlice'
+import adminUsers from './admin/usersSlice'
 import auth from './auth/authSlice'
 import booking from './darshan/bookingSlice'
 import myBookings from './darshan/myBookingsSlice'
@@ -19,6 +21,8 @@ export const rootReducer = combineReducers({
   adminBookings: bookings,
   adminCatalog: catalog,
   adminDashboard: dashboard,
+  adminEditor: editor,
+  adminUsers,
   auth,
   booking,
   cart,

@@ -3,11 +3,18 @@ import { getDb } from './db'
 import { simulate } from './mockClient'
 import { requireUser } from './session'
 import type { StoredUser } from './seed'
-import { MAX_DAYS_AHEAD, MAX_QUANTITY, MIN_QUANTITY, NAKSHATRA_IDS } from '@/lib/constants'
+import { validName, validPhone } from './validate'
+import {
+  MAX_DAYS_AHEAD,
+  MAX_QUANTITY,
+  MIN_QUANTITY,
+  NAKSHATRA_IDS,
+  ORDER_STATUSES,
+} from '@/lib/constants'
 import { addDays, isValidIsoDate, todayIST } from '@/lib/date'
 import { can } from '@/lib/permissions'
 import { normalizePhone } from '@/lib/phone'
-import type { CreateOrderRequest, Order, OrderLine, OrderQuery, Paged } from '@/types'
+import type { CreateOrderRequest, Order, OrderLine, OrderQuery, OrderUpdate, Paged } from '@/types'
 
 function validateOrder(request: CreateOrderRequest): OrderLine[] {
   const db = getDb()
@@ -129,5 +136,45 @@ export function cancelOrder(orderId: string): Promise<Order> {
       throw new ApiError('CONFLICT', 'Only confirmed orders can be cancelled.')
     order.status = 'CANCELLED'
     return order
+  })
+}
+
+function findManagedOrder(user: StoredUser, orderId: string): Order {
+  const order = visibleOrders(user).find((o) => o.id === orderId)
+  if (!order) throw new ApiError('NOT_FOUND', 'Order not found.')
+  return order
+}
+
+/**
+ * Staff/admin: corrects an order's devotee details, offering date or status.
+ * The offerings and amounts stay as they were paid.
+ */
+export function updateOrder(orderId: string, update: OrderUpdate): Promise<Order> {
+  return simulate('vazhipadu', () => {
+    const user = requireUser('order:manage')
+    const order = findManagedOrder(user, orderId)
+    if (!(NAKSHATRA_IDS as readonly string[]).includes(update.star))
+      throw new ApiError('VALIDATION', 'Please choose a birth star.')
+    if (!isValidIsoDate(update.offeringDate))
+      throw new ApiError('VALIDATION', 'Please choose a valid offering date.')
+    if (!(ORDER_STATUSES as readonly string[]).includes(update.status))
+      throw new ApiError('VALIDATION', 'Please choose a status.')
+    order.devoteeName = validName(update.devoteeName, 'the devotee name')
+    order.phone = validPhone(update.phone)
+    order.star = update.star
+    order.offeringDate = update.offeringDate
+    order.status = update.status
+    return order
+  })
+}
+
+/** Staff/admin: removes an order for good. Removing one that is already gone is harmless. */
+export function deleteOrder(orderId: string): Promise<void> {
+  return simulate('vazhipadu', () => {
+    const user = requireUser('order:manage')
+    const db = getDb()
+    if (!db.orders.some((o) => o.id === orderId)) return
+    findManagedOrder(user, orderId)
+    db.orders = db.orders.filter((o) => o.id !== orderId)
   })
 }

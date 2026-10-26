@@ -18,6 +18,8 @@ import {
   AdminOrdersPage,
   AdminRatesPage,
   AdminSlotsPage,
+  AdminTemplesPage,
+  AdminUsersPage,
   CheckoutPage,
   LoginPage,
   DarshanPage,
@@ -100,6 +102,14 @@ export const routes: RouteObject[] = [
                   {
                     element: <RequirePermission permission="notice:manage" />,
                     children: [{ path: 'notices', element: <AdminNoticesPage /> }],
+                  },
+                  {
+                    element: <RequirePermission permission="temple:manage" />,
+                    children: [{ path: 'temples', element: <AdminTemplesPage /> }],
+                  },
+                  {
+                    element: <RequirePermission permission="user:manage" />,
+                    children: [{ path: 'users', element: <AdminUsersPage /> }],
                   },
                 ],
               },

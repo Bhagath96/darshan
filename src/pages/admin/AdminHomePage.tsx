@@ -14,7 +14,10 @@ const LISTED: ReadonlyArray<[Permission, MessageKey, string]> = [
   ['booking:viewAny', 'admin.perm.booking:viewAny', '/admin/bookings'],
   ['order:viewAny', 'admin.perm.order:viewAny', '/admin/orders'],
   ['catalog:manage', 'admin.perm.catalog:manage', '/admin/slots'],
+  ['catalog:manage', 'admin.perm.offerings', '/admin/rates'],
   ['notice:manage', 'admin.perm.notice:manage', '/admin/notices'],
+  ['temple:manage', 'admin.perm.temple:manage', '/admin/temples'],
+  ['user:manage', 'admin.perm.user:manage', '/admin/users'],
 ]
 
 export function AdminHomePage() {
@@ -41,8 +44,8 @@ export function AdminHomePage() {
           {t('admin.yourAccess')}
         </h2>
         <ul className="space-y-2">
-          {LISTED.filter(([p]) => can(user.role, p)).map(([p, label, to]) => (
-            <li key={p} className="flex items-start gap-2">
+          {LISTED.filter(([p]) => can(user.role, p)).map(([, label, to]) => (
+            <li key={to} className="flex items-start gap-2">
               <CheckCircle2 aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-success" />
               <Link to={to} className="text-primary underline-offset-4 hover:underline">
                 {t(label)}

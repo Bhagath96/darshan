@@ -2,6 +2,7 @@ import { createSlice, nanoid, type PayloadAction } from '@reduxjs/toolkit'
 import { logoutRequested, sessionExpired } from '../auth/authSlice'
 import { asyncState, type AppError, type AsyncState } from '../types'
 import type { RootState } from '../rootReducer'
+import { bookingRemoved, bookingReplaced } from './manageActions'
 import type { Booking, BookingQuery, BookingStatus, Paged } from '@/types'
 
 export interface AdminBookingsState extends AsyncState<Paged<Booking> | null> {
@@ -69,7 +70,20 @@ const bookingsSlice = createSlice({
   },
   extraReducers: (builder) => {
     // Never show one user's list to the next person on a shared device.
-    builder.addCase(logoutRequested, () => initialState).addCase(sessionExpired, () => initialState)
+    builder
+      .addCase(logoutRequested, () => initialState)
+      .addCase(sessionExpired, () => initialState)
+      .addCase(bookingReplaced, (state, action) => {
+        const items = state.data?.items
+        const i = items?.findIndex((b) => b.id === action.payload.id) ?? -1
+        if (items && i >= 0) items[i] = action.payload
+      })
+      .addCase(bookingRemoved, (state, action) => {
+        if (!state.data) return
+        const before = state.data.items.length
+        state.data.items = state.data.items.filter((b) => b.id !== action.payload)
+        state.data.total -= before - state.data.items.length
+      })
   },
 })
 

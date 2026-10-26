@@ -2,18 +2,34 @@ import { ApiError } from './errors'
 import { getDb } from './db'
 import { simulate } from './mockClient'
 import { requireUser } from './session'
-import type { StoredUser } from './seed'
-import { MAX_SLOT_CAPACITY, MAX_TICKETS_PER_BOOKING } from '@/lib/constants'
-import { isValidIsoDate } from '@/lib/date'
+import { makeSlot, type StoredUser } from './seed'
+import {
+  assertTempleScope,
+  requireTemple,
+  validName,
+  validPhone,
+  validTime,
+  validWholeNumber,
+} from './validate'
+import {
+  MAX_SLOT_CAPACITY,
+  MAX_TICKETS_PER_BOOKING,
+  SLOT_DAYS,
+  SLOT_MAX_MINUTES,
+  SLOT_MIN_MINUTES,
+} from '@/lib/constants'
+import { addDays, istToInstant, isValidIsoDate, todayIST } from '@/lib/date'
 import { can } from '@/lib/permissions'
 import { normalizePhone } from '@/lib/phone'
 import type {
   Booking,
   BookingQuery,
+  BookingUpdate,
   CreateBookingRequest,
   DarshanSlot,
   IsoDate,
   Paged,
+  SlotInput,
   SlotUpdate,
 } from '@/types'
 
@@ -172,14 +188,15 @@ export function searchBookings(query: BookingQuery): Promise<Paged<Booking>> {
 }
 
 /**
- * Admin: change a slot's capacity or block it. Capacity can't go below the tickets
+ * Staff/admin: change a slot's capacity or block it. Capacity can't go below the tickets
  * already booked; the remaining count moves by the same amount as the capacity.
  */
 export function updateSlot({ slotId, totalCapacity, isBlocked }: SlotUpdate): Promise<DarshanSlot> {
   return simulate('darshan', () => {
-    requireUser('catalog:manage')
+    const user = requireUser('catalog:manage')
     const slot = getDb().slots.find((s) => s.id === slotId)
     if (!slot) throw new ApiError('NOT_FOUND', 'This slot no longer exists.')
+    assertTempleScope(user, slot.templeId)
     if (totalCapacity !== undefined) {
       const booked = slot.totalCapacity - slot.remainingTickets
       if (
@@ -203,5 +220,120 @@ export function updateSlot({ slotId, totalCapacity, isBlocked }: SlotUpdate): Pr
     }
     if (isBlocked !== undefined) slot.isBlocked = isBlocked
     return slot
+  })
+}
+
+/** Staff/admin: adds a darshan slot. Two slots of a temple can't start at the same time. */
+export function createSlot(input: SlotInput): Promise<DarshanSlot> {
+  return simulate('darshan', () => {
+    const user = requireUser('catalog:manage')
+    requireTemple(input.templeId)
+    assertTempleScope(user, input.templeId)
+    const db = getDb()
+    const today = todayIST()
+    if (
+      !isValidIsoDate(input.date) ||
+      input.date < today ||
+      input.date > addDays(today, SLOT_DAYS - 1)
+    )
+      throw new ApiError('VALIDATION', `Please choose a day within the next ${SLOT_DAYS} days.`)
+    const time = validTime(input.time)
+    if (hasStarted(istToInstant(input.date, time)))
+      throw new ApiError('VALIDATION', 'This time has already passed. Please choose a later time.')
+    const minutes = validWholeNumber(
+      input.durationMinutes,
+      SLOT_MIN_MINUTES,
+      SLOT_MAX_MINUTES,
+      'Length in minutes',
+    )
+    const capacity = validWholeNumber(input.totalCapacity, 1, MAX_SLOT_CAPACITY, 'Capacity')
+    const slot = makeSlot(input.templeId, input.date, time, minutes, capacity)
+    if (db.slots.some((s) => s.id === slot.id))
+      throw new ApiError('CONFLICT', 'A slot already starts at this time on this day.')
+    db.slots.push(slot)
+    return slot
+  })
+}
+
+/** Staff/admin: deletes a slot. Refused while it still has active bookings. */
+export function deleteSlot(slotId: string): Promise<void> {
+  return simulate('darshan', () => {
+    const user = requireUser('catalog:manage')
+    const db = getDb()
+    const slot = db.slots.find((s) => s.id === slotId)
+    if (!slot) return
+    assertTempleScope(user, slot.templeId)
+    const active = db.bookings.filter((b) => b.slotId === slotId && b.status === 'BOOKED').length
+    if (active > 0) {
+      throw new ApiError(
+        'CONFLICT',
+        `${active} active booking${active === 1 ? ' is' : 's are'} in this slot. Cancel ${active === 1 ? 'it' : 'them'} first, or close the slot instead.`,
+      )
+    }
+    db.slots = db.slots.filter((s) => s.id !== slotId)
+  })
+}
+
+function findManagedBooking(user: StoredUser, bookingId: string): Booking {
+  const booking = getDb().bookings.find((b) => b.id === bookingId)
+  if (!booking || !canSeeBooking(user, booking))
+    throw new ApiError('NOT_FOUND', 'Booking not found.')
+  return booking
+}
+
+/**
+ * Staff/admin: corrects a booking's name, phone or ticket count. The ticket count can only
+ * change on an active booking that hasn't started, and the slot must have room for it.
+ */
+export function updateBooking(bookingId: string, update: BookingUpdate): Promise<Booking> {
+  return simulate('darshan', () => {
+    const user = requireUser('booking:manage')
+    const booking = findManagedBooking(user, bookingId)
+    const devoteeName = validName(update.devoteeName, 'the devotee name')
+    const phone = validPhone(update.phone)
+    const tickets = validWholeNumber(update.ticketCount, 1, MAX_TICKETS_PER_BOOKING, 'Tickets')
+    const change = tickets - booking.ticketCount
+    if (change !== 0) {
+      if (booking.status !== 'BOOKED')
+        throw new ApiError('CONFLICT', 'Tickets can only be changed on an active booking.')
+      if (hasStarted(booking.startsAt))
+        throw new ApiError(
+          'CONFLICT',
+          'This darshan has already started, so tickets cannot change.',
+        )
+      const slot = getDb().slots.find((s) => s.id === booking.slotId)
+      if (!slot) throw new ApiError('NOT_FOUND', 'This slot no longer exists.')
+      if (change > slot.remainingTickets) {
+        throw new ApiError(
+          'CONFLICT',
+          `Only ${slot.remainingTickets} more tickets are left in this slot.`,
+        )
+      }
+      slot.remainingTickets -= change
+      booking.ticketCount = tickets
+    }
+    booking.devoteeName = devoteeName
+    booking.phone = phone
+    return booking
+  })
+}
+
+/** Staff/admin: removes a booking for good. An active, upcoming booking gives its tickets back. */
+export function deleteBooking(bookingId: string): Promise<void> {
+  return simulate('darshan', () => {
+    const user = requireUser('booking:manage')
+    const db = getDb()
+    const booking = db.bookings.find((b) => b.id === bookingId)
+    if (!booking) return
+    if (!canSeeBooking(user, booking)) throw new ApiError('NOT_FOUND', 'Booking not found.')
+    if (booking.status === 'BOOKED' && !hasStarted(booking.startsAt)) {
+      const slot = db.slots.find((s) => s.id === booking.slotId)
+      if (slot)
+        slot.remainingTickets = Math.min(
+          slot.totalCapacity,
+          slot.remainingTickets + booking.ticketCount,
+        )
+    }
+    db.bookings = db.bookings.filter((b) => b.id !== bookingId)
   })
 }

@@ -2,6 +2,7 @@ import { createSlice, nanoid, type PayloadAction } from '@reduxjs/toolkit'
 import { loadJson, STORAGE_KEYS } from '../persistence'
 import { asyncState, type AppError, type AsyncState } from '../types'
 import type { RootState } from '../rootReducer'
+import { noticeUpdated, templeRemoved } from '../admin/manageActions'
 import type { IsoDateTime, Notice, NoticeInput, NoticeQuery, RequestStatus } from '@/types'
 
 /** How far back a first-time visitor's "new notices" count reaches. */
@@ -146,6 +147,23 @@ const noticesSlice = createSlice({
         return { payload: at ?? new Date().toISOString() }
       },
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(noticeUpdated, (state, action) => {
+        const replace = (list: Notice[]) => {
+          const i = list.findIndex((n) => n.id === action.payload.id)
+          if (i >= 0) list[i] = action.payload
+        }
+        replace(state.latest.data)
+        replace(state.list.data)
+        if (state.detail.data?.id === action.payload.id) state.detail.data = action.payload
+      })
+      // A deleted temple takes its notices with it.
+      .addCase(templeRemoved, (state, action) => {
+        state.latest.data = state.latest.data.filter((n) => n.templeId !== action.payload)
+        state.list.data = state.list.data.filter((n) => n.templeId !== action.payload)
+      })
   },
 })
 

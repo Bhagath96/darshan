@@ -1,4 +1,8 @@
 import { useEffect } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { EditorDialog } from '@/components/admin/EditorDialog'
+import { DeleteButton, EditButton } from '@/components/admin/fields'
 import { PhoneSearchField } from '@/components/admin/PhoneSearchField'
 import { RBody, RCell, RHead, RHeader, RRow, RTable } from '@/components/admin/ResponsiveTable'
 import { TempleScopeField } from '@/components/admin/TempleScopeField'
@@ -13,10 +17,17 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { readPage, useQueryParams } from '@/hooks/useQueryParams'
 import { useNow } from '@/hooks/useNow'
+import { useFieldMessage } from '@/hooks/useFieldMessage'
 import { useTemples } from '@/hooks/useTemples'
-import { useT } from '@/i18n'
-import { BOOKINGS_PAGE_SIZE } from '@/lib/constants'
+import { useT, type MessageKey } from '@/i18n'
+import { BOOKINGS_PAGE_SIZE, MAX_TICKETS_PER_BOOKING } from '@/lib/constants'
 import { isValidIsoDate } from '@/lib/date'
+import { can } from '@/lib/permissions'
+import { isValidPhone } from '@/lib/phone'
+import { NAME_PATTERN } from '@/lib/validators'
+import { z } from '@/lib/zod'
+import { bookingDeleteRequested, bookingEditRequested } from '@/store/admin/manageActions'
+import { selectCurrentUser } from '@/store/auth/authSlice'
 import {
   adminBookingCancelRequested,
   bookingsSearchRequested,
@@ -27,6 +38,120 @@ import type { Booking, BookingStatus } from '@/types'
 
 const STATUSES: BookingStatus[] = ['BOOKED', 'CANCELLED']
 const isStatus = (v: string): v is BookingStatus => (STATUSES as string[]).includes(v)
+
+const key = (k: MessageKey) => k
+const bookingSchema = z.object({
+  devoteeName: z
+    .string()
+    .transform((v) => v.trim().replace(/\s+/g, ' '))
+    .pipe(z.string().regex(NAME_PATTERN, key('manage.nameInvalid'))),
+  phone: z.string().trim().refine(isValidPhone, key('validation.phoneInvalid')),
+  tickets: z
+    .string()
+    .refine((v) => /^\d+$/.test(v) && Number(v) >= 1 && Number(v) <= MAX_TICKETS_PER_BOOKING, {
+      message: key('manage.ticketsInvalid'),
+    }),
+})
+type BookingValues = z.infer<typeof bookingSchema>
+
+function BookingForm({ formId, booking }: { formId: string; booking: Booking }) {
+  const { t } = useT()
+  const dispatch = useAppDispatch()
+  const now = useNow()
+  // Tickets only change on an active booking that hasn't started (the server checks too).
+  const ticketsLocked = booking.status !== 'BOOKED' || Date.parse(booking.startsAt) <= now
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<BookingValues>({
+    resolver: zodResolver(bookingSchema),
+    defaultValues: {
+      devoteeName: booking.devoteeName,
+      phone: booking.phone,
+      tickets: String(booking.ticketCount),
+    },
+  })
+  const message = useFieldMessage(errors)
+  const onSubmit = handleSubmit((v) =>
+    dispatch(
+      bookingEditRequested({
+        id: booking.id,
+        update: { devoteeName: v.devoteeName, phone: v.phone, ticketCount: Number(v.tickets) },
+      }),
+    ),
+  )
+  return (
+    <form id={formId} noValidate onSubmit={onSubmit} className="grid gap-4">
+      <FormField
+        id="booking-name"
+        label={t('adminBookings.devotee')}
+        error={message('devoteeName')}
+      >
+        {(c) => <Input {...c} {...register('devoteeName')} className="h-11" />}
+      </FormField>
+      <FormField id="booking-phone" label={t('common.phone')} error={message('phone')}>
+        {(c) => (
+          <Input {...c} {...register('phone')} type="tel" inputMode="numeric" className="h-11" />
+        )}
+      </FormField>
+      <FormField
+        id="booking-tickets"
+        label={t('adminBookings.tickets')}
+        hint={ticketsLocked ? t('manage.ticketsLocked') : t('manage.ticketsHint')}
+        error={message('tickets')}
+      >
+        {(c) => (
+          <Input
+            {...c}
+            {...register('tickets')}
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={MAX_TICKETS_PER_BOOKING}
+            readOnly={ticketsLocked}
+            className="h-11"
+          />
+        )}
+      </FormField>
+    </form>
+  )
+}
+
+function BookingActions({ booking }: { booking: Booking }) {
+  const { t } = useT()
+  const dispatch = useAppDispatch()
+  const user = useAppSelector(selectCurrentUser)
+  const cancelling = useAppSelector((s) => booking.id in s.adminBookings.cancelling)
+  return (
+    <span className="flex flex-wrap items-center justify-end gap-2 md:justify-start">
+      <CancelCell booking={booking} />
+      {can(user?.role, 'booking:manage') && (
+        <>
+          <EditorDialog
+            trigger={
+              <EditButton
+                label={t('manage.editBookingOf', { ref: booking.bookingRef })}
+                disabled={cancelling}
+              />
+            }
+            title={t('manage.editBooking', { ref: booking.bookingRef })}
+            submitLabel={t('common.save')}
+          >
+            {(formId) => <BookingForm formId={formId} booking={booking} />}
+          </EditorDialog>
+          <DeleteButton
+            label={t('manage.deleteBookingOf', { ref: booking.bookingRef })}
+            title={t('manage.deleteBookingTitle', { ref: booking.bookingRef })}
+            description={t('manage.deleteBookingText')}
+            disabled={cancelling}
+            onConfirm={() => dispatch(bookingDeleteRequested(booking.id))}
+          />
+        </>
+      )}
+    </span>
+  )
+}
 
 function CancelCell({ booking }: { booking: Booking }) {
   const { t, pick, date, time } = useT()
@@ -227,7 +352,7 @@ export function AdminBookingsPage() {
                       <StatusBadge kind="booking" status={b.status} />
                     </RCell>
                     <RCell className="max-md:justify-end">
-                      <CancelCell booking={b} />
+                      <BookingActions booking={b} />
                     </RCell>
                   </RRow>
                 )

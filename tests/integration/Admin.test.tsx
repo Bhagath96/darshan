@@ -12,23 +12,30 @@ afterEach(() => vi.useRealTimers())
 const adminMenu = () => screen.getByRole('navigation', { name: 'Admin' })
 
 describe('Admin portal access', () => {
-  it('shows staff only bookings, orders and notices', async () => {
+  it('shows staff everything for their temple, but not the dashboard, temples or users', async () => {
     renderApp({ url: '/admin', as: 'staff' })
     await screen.findByRole('heading', { name: 'Welcome, Ravi Menon' })
     const links = within(adminMenu())
       .getAllByRole('link')
       .map((l) => l.textContent)
-    expect(links).toEqual(['Overview', 'Darshan bookings', 'Vazhipadu orders', 'Notices'])
+    expect(links).toEqual([
+      'Overview',
+      'Darshan bookings',
+      'Vazhipadu orders',
+      'Darshan slots',
+      'Vazhipadu offerings',
+      'Notices',
+    ])
   })
 
   it('gives admins every section', async () => {
     renderApp({ url: '/admin', as: 'admin' })
     await screen.findByRole('heading', { name: 'Welcome, Devaswom Admin' })
-    expect(within(adminMenu()).getAllByRole('link')).toHaveLength(7)
+    expect(within(adminMenu()).getAllByRole('link')).toHaveLength(9)
   })
 
   it('sends staff to 403 for admin-only pages', async () => {
-    const { router } = renderApp({ url: '/admin/slots', as: 'staff' })
+    const { router } = renderApp({ url: '/admin/users', as: 'staff' })
     expect(
       await screen.findByRole('heading', { name: 'You do not have access to this page' }),
     ).toBeInTheDocument()

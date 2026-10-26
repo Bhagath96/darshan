@@ -1,8 +1,16 @@
 import { useEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { AlertTriangle, Loader2, Trash2 } from 'lucide-react'
-import { useForm, useWatch } from 'react-hook-form'
+import {
+  useForm,
+  useWatch,
+  type FieldErrors,
+  type UseFormRegister,
+  type UseFormSetValue,
+} from 'react-hook-form'
 import { z } from '@/lib/zod'
+import { EditorDialog } from '@/components/admin/EditorDialog'
+import { EditButton } from '@/components/admin/fields'
 import { TempleScopeField } from '@/components/admin/TempleScopeField'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { FormField } from '@/components/common/FormField'
@@ -14,10 +22,12 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { useFieldMessage } from '@/hooks/useFieldMessage'
 import { useTemples } from '@/hooks/useTemples'
 import { useT, type MessageKey } from '@/i18n'
 import { NOTICE_BODY_MAX, NOTICE_CATEGORIES, NOTICE_TITLE_MAX } from '@/lib/constants'
 import { isValidIsoDate } from '@/lib/date'
+import { noticeEditRequested } from '@/store/admin/manageActions'
 import { selectCurrentUser } from '@/store/auth/authSlice'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import {
@@ -27,7 +37,7 @@ import {
   noticesRequested,
   selectNoticeList,
 } from '@/store/notices/noticesSlice'
-import type { Notice, NoticeCategory } from '@/types'
+import type { Notice, NoticeCategory, NoticeInput } from '@/types'
 
 const key = (k: MessageKey) => k
 const title = z
@@ -52,6 +62,87 @@ const noticeSchema = z.object({
   eventDate: z.string().refine((v) => v === '' || isValidIsoDate(v)),
 })
 type NoticeValues = z.infer<typeof noticeSchema>
+
+const toInput = (v: NoticeValues): NoticeInput => ({
+  templeId: v.templeId || null,
+  category: v.category,
+  important: v.important,
+  title: { en: v.titleEn, ml: v.titleMl },
+  body: { en: v.bodyEn, ml: v.bodyMl },
+  eventDate: v.eventDate || null,
+})
+
+interface NoticeFieldsProps {
+  /** Prefix for field ids, so the page form and the edit dialog never clash. */
+  idPrefix: string
+  register: UseFormRegister<NoticeValues>
+  errors: FieldErrors<NoticeValues>
+  templeId: string
+  setValue: UseFormSetValue<NoticeValues>
+}
+
+/** The notice fields, shared by "New notice" and "Edit notice". */
+function NoticeFields({ idPrefix, register, errors, templeId, setValue }: NoticeFieldsProps) {
+  const { t } = useT()
+  const message = useFieldMessage(errors)
+  const id = (name: string) => `${idPrefix}-${name}`
+  return (
+    <>
+      <TempleScopeField
+        id={id('temple')}
+        value={templeId}
+        allowAll
+        allLabel={t('adminNotices.allTemples')}
+        onChange={(temple) => setValue('templeId', temple)}
+      />
+      <FormField id={id('category')} label={t('adminNotices.category')}>
+        {(control) => (
+          <NativeSelect {...control} {...register('category')}>
+            {NOTICE_CATEGORIES.map((c: NoticeCategory) => (
+              <option key={c} value={c}>
+                {t(`notices.category.${c}`)}
+              </option>
+            ))}
+          </NativeSelect>
+        )}
+      </FormField>
+      <FormField id={id('title-en')} label={t('adminNotices.titleEn')} error={message('titleEn')}>
+        {(control) => <Input {...control} {...register('titleEn')} lang="en" className="h-11" />}
+      </FormField>
+      <FormField id={id('title-ml')} label={t('adminNotices.titleMl')} error={message('titleMl')}>
+        {(control) => <Input {...control} {...register('titleMl')} lang="ml" className="h-11" />}
+      </FormField>
+      <FormField id={id('body-en')} label={t('adminNotices.bodyEn')} error={message('bodyEn')}>
+        {(control) => <Textarea {...control} {...register('bodyEn')} lang="en" rows={4} />}
+      </FormField>
+      <FormField id={id('body-ml')} label={t('adminNotices.bodyMl')} error={message('bodyMl')}>
+        {(control) => <Textarea {...control} {...register('bodyMl')} lang="ml" rows={4} />}
+      </FormField>
+      <FormField id={id('date')} label={t('adminNotices.eventDate')}>
+        {(control) => (
+          <Input {...control} {...register('eventDate')} type="date" className="h-11" />
+        )}
+      </FormField>
+      <div className="flex items-start gap-3 self-end pb-2">
+        <input
+          id={id('important')}
+          type="checkbox"
+          {...register('important')}
+          aria-describedby={id('important-hint')}
+          className="mt-0.5 size-5 accent-primary"
+        />
+        <div>
+          <label htmlFor={id('important')} className="text-sm font-medium">
+            {t('adminNotices.important')}
+          </label>
+          <p id={id('important-hint')} className="text-xs text-muted-foreground">
+            {t('adminNotices.importantHint')}
+          </p>
+        </div>
+      </div>
+    </>
+  )
+}
 
 function NewNoticeForm() {
   const { t, err } = useT()
@@ -87,24 +178,8 @@ function NewNoticeForm() {
     if (create.status === 'success') reset()
   }, [create.status, reset])
 
-  const message = (field: keyof NoticeValues) => {
-    const e = errors[field]
-    return e?.message ? t(e.message as MessageKey) : undefined
-  }
   const publishing = create.status === 'loading'
-
-  const onSubmit = handleSubmit((v) =>
-    dispatch(
-      noticeCreateRequested({
-        templeId: v.templeId || null,
-        category: v.category,
-        important: v.important,
-        title: { en: v.titleEn, ml: v.titleMl },
-        body: { en: v.bodyEn, ml: v.bodyMl },
-        eventDate: v.eventDate || null,
-      }),
-    ),
-  )
+  const onSubmit = handleSubmit((v) => dispatch(noticeCreateRequested(toInput(v))))
 
   return (
     <section aria-labelledby="new-notice" className="space-y-4 rounded-xl border bg-card p-5">
@@ -118,66 +193,13 @@ function NewNoticeForm() {
         </p>
       )}
       <form noValidate onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
-        <TempleScopeField
-          id="notice-temple"
-          value={templeId}
-          allowAll
-          allLabel={t('adminNotices.allTemples')}
-          onChange={(id) => setValue('templeId', id)}
+        <NoticeFields
+          idPrefix="notice"
+          register={register}
+          errors={errors}
+          templeId={templeId}
+          setValue={setValue}
         />
-        <FormField id="notice-category" label={t('adminNotices.category')}>
-          {(control) => (
-            <NativeSelect {...control} {...register('category')}>
-              {NOTICE_CATEGORIES.map((c: NoticeCategory) => (
-                <option key={c} value={c}>
-                  {t(`notices.category.${c}`)}
-                </option>
-              ))}
-            </NativeSelect>
-          )}
-        </FormField>
-        <FormField
-          id="notice-title-en"
-          label={t('adminNotices.titleEn')}
-          error={message('titleEn')}
-        >
-          {(control) => <Input {...control} {...register('titleEn')} lang="en" className="h-11" />}
-        </FormField>
-        <FormField
-          id="notice-title-ml"
-          label={t('adminNotices.titleMl')}
-          error={message('titleMl')}
-        >
-          {(control) => <Input {...control} {...register('titleMl')} lang="ml" className="h-11" />}
-        </FormField>
-        <FormField id="notice-body-en" label={t('adminNotices.bodyEn')} error={message('bodyEn')}>
-          {(control) => <Textarea {...control} {...register('bodyEn')} lang="en" rows={4} />}
-        </FormField>
-        <FormField id="notice-body-ml" label={t('adminNotices.bodyMl')} error={message('bodyMl')}>
-          {(control) => <Textarea {...control} {...register('bodyMl')} lang="ml" rows={4} />}
-        </FormField>
-        <FormField id="notice-date" label={t('adminNotices.eventDate')}>
-          {(control) => (
-            <Input {...control} {...register('eventDate')} type="date" className="h-11" />
-          )}
-        </FormField>
-        <div className="flex items-start gap-3 self-end pb-2">
-          <input
-            id="notice-important"
-            type="checkbox"
-            {...register('important')}
-            aria-describedby="notice-important-hint"
-            className="mt-0.5 size-5 accent-primary"
-          />
-          <div>
-            <label htmlFor="notice-important" className="text-sm font-medium">
-              {t('adminNotices.important')}
-            </label>
-            <p id="notice-important-hint" className="text-xs text-muted-foreground">
-              {t('adminNotices.importantHint')}
-            </p>
-          </div>
-        </div>
         <div className="sm:col-span-2">
           <Button type="submit" className="h-11 px-5" disabled={publishing}>
             {publishing && <Loader2 aria-hidden="true" className="animate-spin" />}
@@ -186,6 +208,44 @@ function NewNoticeForm() {
         </div>
       </form>
     </section>
+  )
+}
+
+function EditNoticeForm({ formId, notice }: { formId: string; notice: Notice }) {
+  const dispatch = useAppDispatch()
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    formState: { errors },
+  } = useForm<NoticeValues>({
+    resolver: zodResolver(noticeSchema),
+    defaultValues: {
+      templeId: notice.templeId ?? '',
+      category: notice.category,
+      important: notice.important,
+      titleEn: notice.title.en,
+      titleMl: notice.title.ml,
+      bodyEn: notice.body.en,
+      bodyMl: notice.body.ml,
+      eventDate: notice.eventDate ?? '',
+    },
+  })
+  const templeId = useWatch({ control, name: 'templeId' })
+  const onSubmit = handleSubmit((v) =>
+    dispatch(noticeEditRequested({ id: notice.id, input: toInput(v) })),
+  )
+  return (
+    <form id={formId} noValidate onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
+      <NoticeFields
+        idPrefix="edit-notice"
+        register={register}
+        errors={errors}
+        templeId={templeId}
+        setValue={setValue}
+      />
+    </form>
   )
 }
 
@@ -204,23 +264,33 @@ function NoticeRow({ notice }: { notice: Notice }) {
         <p className="font-medium">{noticeTitle}</p>
         <NoticeMeta notice={notice} temple={temples.data.find((x) => x.id === notice.templeId)} />
       </div>
-      <ConfirmDialog
-        trigger={
-          <Button
-            variant="destructive"
-            className="h-11 shrink-0 px-3"
-            aria-label={t('adminNotices.deleteOf', { title: noticeTitle })}
-          >
-            <Trash2 aria-hidden="true" />
-            {t('adminNotices.delete')}
-          </Button>
-        }
-        title={t('adminNotices.confirmTitle')}
-        description={t('adminNotices.confirmText', { title: noticeTitle })}
-        confirmLabel={t('adminNotices.confirm')}
-        cancelLabel={t('adminNotices.keep')}
-        onConfirm={() => dispatch(noticeDeleteRequested(notice.id))}
-      />
+      <div className="flex shrink-0 flex-wrap gap-2">
+        <EditorDialog
+          wide
+          trigger={<EditButton label={t('manage.editNoticeOf', { title: noticeTitle })} />}
+          title={t('manage.editNotice')}
+          submitLabel={t('common.save')}
+        >
+          {(formId) => <EditNoticeForm formId={formId} notice={notice} />}
+        </EditorDialog>
+        <ConfirmDialog
+          trigger={
+            <Button
+              variant="destructive"
+              className="h-11 shrink-0 px-3"
+              aria-label={t('adminNotices.deleteOf', { title: noticeTitle })}
+            >
+              <Trash2 aria-hidden="true" />
+              {t('adminNotices.delete')}
+            </Button>
+          }
+          title={t('adminNotices.confirmTitle')}
+          description={t('adminNotices.confirmText', { title: noticeTitle })}
+          confirmLabel={t('adminNotices.confirm')}
+          cancelLabel={t('adminNotices.keep')}
+          onConfirm={() => dispatch(noticeDeleteRequested(notice.id))}
+        />
+      </div>
     </li>
   )
 }

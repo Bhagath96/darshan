@@ -1,6 +1,7 @@
 import { createSlice, nanoid, type PayloadAction } from '@reduxjs/toolkit'
 import { asyncState, type AppError, type AsyncState } from '../types'
 import type { RootState } from '../rootReducer'
+import { offeringRemoved, offeringUpserted } from '../admin/manageActions'
 import type { Offering } from '@/types'
 
 export interface OfferingsState extends AsyncState<Offering[]> {
@@ -43,6 +44,19 @@ const offeringsSlice = createSlice({
       state.status = 'error'
       state.error = action.payload.error
     },
+  },
+  extraReducers: (builder) => {
+    // Keep the devotee catalogue in step with staff edits made in the same tab.
+    builder
+      .addCase(offeringUpserted, (state, action) => {
+        if (state.templeId !== action.payload.templeId) return
+        const i = state.data.findIndex((o) => o.id === action.payload.id)
+        if (i >= 0) state.data[i] = action.payload
+        else state.data.push(action.payload)
+      })
+      .addCase(offeringRemoved, (state, action) => {
+        state.data = state.data.filter((o) => o.id !== action.payload)
+      })
   },
 })
 

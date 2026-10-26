@@ -1,6 +1,7 @@
 import { createSlice, nanoid, type PayloadAction } from '@reduxjs/toolkit'
 import { asyncState, type AppError, type AsyncState } from '../types'
 import type { RootState } from '../rootReducer'
+import { offeringRemoved, offeringUpserted, slotRemoved, slotUpserted } from './manageActions'
 import type { DarshanSlot, IsoDate, Offering, OfferingUpdate, SlotUpdate } from '@/types'
 
 type Editable<T> = AsyncState<T[]> & {
@@ -11,15 +12,16 @@ type Editable<T> = AsyncState<T[]> & {
 
 /** Slots and offerings as the admin edits them (capacity, block, price, on/off). */
 export interface AdminCatalogState {
-  slots: Editable<DarshanSlot>
-  offerings: Editable<Offering>
+  /** `shown`: the temple and day on screen, so a new slot is only added to the matching list. */
+  slots: Editable<DarshanSlot> & { shown: { templeId: string; date: IsoDate } | null }
+  offerings: Editable<Offering> & { templeId: string | null }
 }
 
 const editable = <T>(): Editable<T> => ({ ...asyncState<T[]>([]), requestId: null, saving: {} })
 
 const initialState: AdminCatalogState = {
-  slots: editable<DarshanSlot>(),
-  offerings: editable<Offering>(),
+  slots: { ...editable<DarshanSlot>(), shown: null },
+  offerings: { ...editable<Offering>(), templeId: null },
 }
 
 function start(list: Editable<unknown>, requestId: string) {
@@ -38,6 +40,7 @@ const catalogSlice = createSlice({
         action: PayloadAction<{ templeId: string; date: IsoDate; requestId: string }>,
       ) {
         start(state.slots, action.payload.requestId)
+        state.slots.shown = { templeId: action.payload.templeId, date: action.payload.date }
       },
       prepare(templeId: string, date: IsoDate) {
         return { payload: { templeId, date, requestId: nanoid() } }
@@ -75,6 +78,7 @@ const catalogSlice = createSlice({
     adminOfferingsRequested: {
       reducer(state, action: PayloadAction<{ templeId: string; requestId: string }>) {
         start(state.offerings, action.payload.requestId)
+        state.offerings.templeId = action.payload.templeId
       },
       prepare(templeId: string) {
         return { payload: { templeId, requestId: nanoid() } }
@@ -106,6 +110,30 @@ const catalogSlice = createSlice({
       const i = state.offerings.data.findIndex((o) => o.id === action.payload.id)
       if (i >= 0) state.offerings.data[i] = action.payload
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(slotUpserted, (state, action) => {
+        const slot = action.payload
+        const { shown } = state.slots
+        if (!shown || shown.templeId !== slot.templeId || shown.date !== slot.date) return
+        state.slots.data = [...state.slots.data.filter((s) => s.id !== slot.id), slot].sort(
+          (a, b) => a.startsAt.localeCompare(b.startsAt),
+        )
+      })
+      .addCase(slotRemoved, (state, action) => {
+        state.slots.data = state.slots.data.filter((s) => s.id !== action.payload)
+      })
+      .addCase(offeringUpserted, (state, action) => {
+        const offering = action.payload
+        if (state.offerings.templeId !== offering.templeId) return
+        const i = state.offerings.data.findIndex((o) => o.id === offering.id)
+        if (i >= 0) state.offerings.data[i] = offering
+        else state.offerings.data.push(offering)
+      })
+      .addCase(offeringRemoved, (state, action) => {
+        state.offerings.data = state.offerings.data.filter((o) => o.id !== action.payload)
+      })
   },
 })
 

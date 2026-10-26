@@ -53,6 +53,20 @@ export const MAX_SLOT_CAPACITY = 500
 export const MAX_OFFERING_PRICE = 100_000
 export const NOTICE_TITLE_MAX = 120
 export const NOTICE_BODY_MAX = 2000
+export const OFFERING_NAME_MAX = 80
+export const OFFERING_DESCRIPTION_MAX = 500
+export const TEMPLE_TEXT_MAX = 120
+export const TEMPLE_ABOUT_MAX = 2000
+export const MAX_SCHEDULE_ITEMS = 20
+
+/** Darshan slots can be booked and managed this many days ahead (today included). */
+export const SLOT_DAYS = 7
+export const SLOT_MIN_MINUTES = 15
+export const SLOT_MAX_MINUTES = 240
+export const DEFAULT_SLOT_MINUTES = 90
+
+/** Account roles, most powerful first (the order the users page sorts by). */
+export const USER_ROLES = ['ADMIN', 'STAFF', 'DEVOTEE'] as const
 
 /** Most rows a CSV export will include. */
 export const EXPORT_ROW_LIMIT = 5000

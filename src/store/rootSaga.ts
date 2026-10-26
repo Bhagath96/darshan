@@ -1,5 +1,6 @@
 import { all, fork } from 'redux-saga/effects'
 import { adminSaga } from './admin/adminSaga'
+import { manageSaga } from './admin/manageSaga'
 import { authSaga } from './auth/authSaga'
 import { darshanSaga } from './darshan/darshanSaga'
 import { i18nSaga } from './i18n/i18nSaga'
@@ -11,6 +12,7 @@ import { vazhipaduSaga } from './vazhipadu/vazhipaduSaga'
 export function* rootSaga() {
   yield all([
     fork(adminSaga),
+    fork(manageSaga),
     fork(authSaga),
     fork(darshanSaga),
     fork(vazhipaduSaga),

@@ -3,9 +3,10 @@ import { getDb } from './db'
 import { simulate } from './mockClient'
 import { requireUser } from './session'
 import type { StoredUser } from './seed'
+import { assertTempleScope, cleanLocalized, requireTemple } from './validate'
 import { NOTICE_BODY_MAX, NOTICE_CATEGORIES, NOTICE_TITLE_MAX } from '@/lib/constants'
 import { isValidIsoDate } from '@/lib/date'
-import type { Localized, Notice, NoticeInput, NoticeQuery } from '@/types'
+import type { Notice, NoticeInput, NoticeQuery } from '@/types'
 
 /**
  * Public: notices, newest first. Filtering by a temple also includes the notices
@@ -37,19 +38,26 @@ export function getNotice(noticeId: string): Promise<Notice> {
 
 /** Staff may only post for their own temple; admins for any temple or all of them. */
 function assertNoticeScope(user: StoredUser, templeId: string | null) {
-  if (user.templeId !== null && templeId !== user.templeId) {
-    throw new ApiError('FORBIDDEN', 'You can only manage notices for your own temple.')
-  }
+  assertTempleScope(user, templeId, 'You can only manage notices for your own temple.')
 }
 
-function cleanText(text: Localized, max: number, what: string): Localized {
-  const en = text.en.trim()
-  const ml = text.ml.trim()
-  if (!en || !ml)
-    throw new ApiError('VALIDATION', `Please enter the ${what} in English and Malayalam.`)
-  if (en.length > max || ml.length > max)
-    throw new ApiError('VALIDATION', `The ${what} can be at most ${max} characters.`)
-  return { en, ml }
+/** Checks a notice and returns it cleaned up (text trimmed). */
+function cleanNotice(input: NoticeInput): Omit<Notice, 'id' | 'publishedAt'> {
+  if (input.templeId !== null) requireTemple(input.templeId)
+  if (!(NOTICE_CATEGORIES as readonly string[]).includes(input.category)) {
+    throw new ApiError('VALIDATION', 'Please choose a notice type.')
+  }
+  if (input.eventDate !== null && !isValidIsoDate(input.eventDate)) {
+    throw new ApiError('VALIDATION', 'Please choose a valid date.')
+  }
+  return {
+    templeId: input.templeId,
+    category: input.category,
+    important: input.important,
+    title: cleanLocalized(input.title, NOTICE_TITLE_MAX, 'title'),
+    body: cleanLocalized(input.body, NOTICE_BODY_MAX, 'notice text'),
+    eventDate: input.eventDate,
+  }
 }
 
 /** Staff/admin: publishes a notice straight away. */
@@ -58,27 +66,27 @@ export function createNotice(input: NoticeInput): Promise<Notice> {
     const user = requireUser('notice:manage')
     const db = getDb()
     assertNoticeScope(user, input.templeId)
-    if (input.templeId !== null && !db.temples.some((t) => t.id === input.templeId)) {
-      throw new ApiError('NOT_FOUND', 'Temple not found.')
-    }
-    if (!(NOTICE_CATEGORIES as readonly string[]).includes(input.category)) {
-      throw new ApiError('VALIDATION', 'Please choose a notice type.')
-    }
-    if (input.eventDate !== null && !isValidIsoDate(input.eventDate)) {
-      throw new ApiError('VALIDATION', 'Please choose a valid date.')
-    }
+    const clean = cleanNotice(input)
     db.counters.notice += 1
     const notice: Notice = {
       id: `nt-new-${db.counters.notice}`,
-      templeId: input.templeId,
-      category: input.category,
-      important: input.important,
-      title: cleanText(input.title, NOTICE_TITLE_MAX, 'title'),
-      body: cleanText(input.body, NOTICE_BODY_MAX, 'notice text'),
+      ...clean,
       publishedAt: new Date().toISOString(),
-      eventDate: input.eventDate,
     }
     db.notices.unshift(notice)
+    return notice
+  })
+}
+
+/** Staff/admin: changes a notice. It keeps its place and publish time. */
+export function updateNotice(noticeId: string, input: NoticeInput): Promise<Notice> {
+  return simulate('content', () => {
+    const user = requireUser('notice:manage')
+    const notice = getDb().notices.find((n) => n.id === noticeId)
+    if (!notice) throw new ApiError('NOT_FOUND', 'This notice does not exist or has been removed.')
+    assertNoticeScope(user, notice.templeId)
+    assertNoticeScope(user, input.templeId)
+    Object.assign(notice, cleanNotice(input))
     return notice
   })
 }

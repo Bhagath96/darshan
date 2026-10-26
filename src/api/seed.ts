@@ -3,12 +3,13 @@ import offeringsJson from './data/offerings.json'
 import templesJson from './data/temples.json'
 import usersJson from './data/users.json'
 import { createRng, type Rng } from './rng'
-import { NAKSHATRA_IDS } from '@/lib/constants'
+import { DEFAULT_SLOT_MINUTES, NAKSHATRA_IDS, SLOT_DAYS } from '@/lib/constants'
 import { addDays, istToInstant, todayIST } from '@/lib/date'
 import type {
   AuthUser,
   Booking,
   DarshanSlot,
+  IsoDate,
   Notice,
   Offering,
   Order,
@@ -52,9 +53,8 @@ export function generateNotices(now: Date): Notice[] {
 }
 
 /** Darshan slot start times (IST) and their length in minutes. */
-const SLOT_TIMES = ['05:00', '06:30', '08:00', '10:00', '17:00', '18:30'] as const
-const SLOT_MINUTES = 90
-const SLOT_DAYS = 7
+export const SLOT_TIMES = ['05:00', '06:30', '08:00', '10:00', '17:00', '18:30'] as const
+const SLOT_MINUTES = DEFAULT_SLOT_MINUTES
 
 const DEVOTEE_NAMES = [
   'Anil Kumar',
@@ -79,6 +79,37 @@ function phoneFor(rng: Rng): string {
   return `${rng.pick(['94', '98', '99', '70', '80', '63'])}${String(rng.int(10_000_000, 99_999_999))}`
 }
 
+/** One empty slot. The id is built from temple, day and start time, so it is unique per start. */
+export function makeSlot(
+  templeId: string,
+  date: IsoDate,
+  time: string,
+  minutes: number,
+  capacity: number,
+): DarshanSlot {
+  const startsAt = istToInstant(date, time)
+  return {
+    id: `sl-${templeId}-${date}-${time.replace(':', '')}`,
+    templeId,
+    date,
+    startsAt,
+    endsAt: new Date(new Date(startsAt).getTime() + minutes * 60_000).toISOString(),
+    totalCapacity: capacity,
+    remainingTickets: capacity,
+    isBlocked: false,
+  }
+}
+
+/** The standard six slots a day for the next SLOT_DAYS days, all empty (for a new temple). */
+export function standardSlots(templeId: string, now: Date): DarshanSlot[] {
+  const today = todayIST(now)
+  return Array.from({ length: SLOT_DAYS }, (_, day) => addDays(today, day)).flatMap((date) =>
+    SLOT_TIMES.map((time, i) =>
+      makeSlot(templeId, date, time, SLOT_MINUTES, i % 2 === 0 ? 100 : 50),
+    ),
+  )
+}
+
 export function generateSlots(rng: Rng, now: Date): DarshanSlot[] {
   const today = todayIST(now)
   const slots: DarshanSlot[] = []
@@ -86,21 +117,11 @@ export function generateSlots(rng: Rng, now: Date): DarshanSlot[] {
     for (let day = 0; day < SLOT_DAYS; day++) {
       const date = addDays(today, day)
       SLOT_TIMES.forEach((time, i) => {
-        const startsAt = istToInstant(date, time)
-        const totalCapacity = i % 2 === 0 ? 100 : 50
-        let remainingTickets = rng.chance(0.15) ? 0 : rng.int(1, totalCapacity)
+        const slot = makeSlot(temple.id, date, time, SLOT_MINUTES, i % 2 === 0 ? 100 : 50)
+        slot.remainingTickets = rng.chance(0.15) ? 0 : rng.int(1, slot.totalCapacity)
         // Tomorrow's 08:00 slot always has exactly 10 left, for the "book 3 of 10" scenario.
-        if (day === 1 && time === '08:00') remainingTickets = 10
-        slots.push({
-          id: `sl-${temple.id}-${date}-${time.replace(':', '')}`,
-          templeId: temple.id,
-          date,
-          startsAt,
-          endsAt: new Date(new Date(startsAt).getTime() + SLOT_MINUTES * 60_000).toISOString(),
-          totalCapacity,
-          remainingTickets,
-          isBlocked: false,
-        })
+        if (day === 1 && time === '08:00') slot.remainingTickets = 10
+        slots.push(slot)
       })
     }
   }
