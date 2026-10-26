@@ -3,12 +3,23 @@ import { getMockConfig } from '@/api/mockClient'
 import { applyMockSettings } from '@/mockSettings'
 
 const env = (values: Partial<ImportMetaEnv>) =>
-  ({ DEV: false, PROD: true, MODE: 'production', BASE_URL: '/', SSR: false, ...values }) as ImportMetaEnv
+  ({
+    DEV: false,
+    PROD: true,
+    MODE: 'production',
+    BASE_URL: '/',
+    SSR: false,
+    ...values,
+  }) as ImportMetaEnv
 
 describe('applyMockSettings', () => {
   it('uses build-time env vars', () => {
     applyMockSettings(env({ VITE_MOCK_FAILURE_RATE: '0.05', VITE_MOCK_LATENCY_MS: '250' }), '')
-    expect(getMockConfig('darshan')).toMatchObject({ failureRate: 0.05, minDelay: 250, maxDelay: 250 })
+    expect(getMockConfig('darshan')).toMatchObject({
+      failureRate: 0.05,
+      minDelay: 250,
+      maxDelay: 250,
+    })
   })
 
   it('ignores out-of-range or junk values', () => {
