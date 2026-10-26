@@ -1,0 +1,105 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+/*
+ * TDB Portal theme — traditional Kerala temple palette.
+ * Contrast (WCAG AA) on the cream background:
+ *   foreground #1F1A17 ≈ 16:1, primary maroon #7A1F1F ≈ 10:1,
+ *   muted text #5B524B ≈ 7:1, destructive #B42318 ≈ 6:1, success #2F6B3A ≈ 6:1.
+ * Gold (#B7791F) is decorative only (borders/icons); the focus ring uses darker gold #8A5A12 (≈ 5:1).
+ */
+
+@theme inline {
+  --font-sans: 'Noto Sans', 'Noto Sans Malayalam', system-ui, sans-serif;
+  --font-heading: 'Noto Serif', 'Noto Serif Malayalam', Georgia, serif;
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-gold: var(--gold);
+  --color-chart-bar: var(--chart-bar);
+  --color-chart-track: var(--chart-track);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+:root {
+  --background: #fbf7f0;
+  --foreground: #1f1a17;
+  --card: #ffffff;
+  --card-foreground: #1f1a17;
+  --popover: #ffffff;
+  --popover-foreground: #1f1a17;
+  --primary: #7a1f1f;
+  --primary-foreground: #fffaf2;
+  --secondary: #f3e9d8;
+  --secondary-foreground: #4a1313;
+  --muted: #f1ebe2;
+  --muted-foreground: #5b524b;
+  --accent: #f6ead2;
+  --accent-foreground: #4a1313;
+  --destructive: #b42318;
+  --success: #2f6b3a;
+  --gold: #b7791f;
+  --border: #e4d8c5;
+  --input: #cbbca6;
+  --ring: #8a5a12;
+  /* Charts: one temple-red hue (validated: L 0.43–0.77, >= 3:1 on white) and a light step of it for tracks. */
+  --chart-bar: #9b2c2c;
+  --chart-track: #f3e1de;
+  --radius: 0.625rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    min-height: 100dvh;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-heading text-balance;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

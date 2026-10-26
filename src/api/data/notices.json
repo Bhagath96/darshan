@@ -1,0 +1,175 @@
+[
+  {
+    "id": "nt-ekadasi",
+    "templeId": "tm-krishna",
+    "category": "FESTIVAL",
+    "important": true,
+    "publishedDaysAgo": 1,
+    "eventInDays": 12,
+    "title": {
+      "en": "Ekadasi festival: darshan open all day",
+      "ml": "ഏകാദശി ഉത്സവം: ദിവസം മുഴുവൻ ദർശനം"
+    },
+    "body": {
+      "en": "On Ekadasi the temple stays open from 3:00 am until midnight without the usual afternoon closing. Expect long queues in the morning; booking a darshan slot in advance is strongly advised. Free prasada oottu is served from 10:00 am.",
+      "ml": "ഏകാദശി ദിവസം ഉച്ചയ്ക്ക് നട അടയ്ക്കാതെ പുലർച്ചെ 3:00 മുതൽ അർദ്ധരാത്രി വരെ ദർശനം ഉണ്ടായിരിക്കും. രാവിലെ നീണ്ട ക്യൂ പ്രതീക്ഷിക്കുന്നതിനാൽ ദർശന സമയം മുൻകൂട്ടി ബുക്ക് ചെയ്യുക. രാവിലെ 10:00 മുതൽ പ്രസാദ ഊട്ട് ഉണ്ടായിരിക്കും."
+    }
+  },
+  {
+    "id": "nt-krishna-timing",
+    "templeId": "tm-krishna",
+    "category": "TIMING",
+    "important": false,
+    "publishedDaysAgo": 3,
+    "eventInDays": 4,
+    "title": {
+      "en": "Evening darshan starts 30 minutes late",
+      "ml": "വൈകുന്നേര ദർശനം 30 മിനിറ്റ് വൈകി ആരംഭിക്കും"
+    },
+    "body": {
+      "en": "Because of a special pooja, evening darshan will start at 5:00 pm instead of 4:30 pm. Bookings in the 5:00 pm slot are not affected.",
+      "ml": "പ്രത്യേക പൂജ നടക്കുന്നതിനാൽ വൈകുന്നേര ദർശനം 4:30-നു പകരം 5:00-ന് ആരംഭിക്കും. 5:00 മണി സ്ലോട്ടിലെ ബുക്കിങ്ങുകളെ ഇത് ബാധിക്കില്ല."
+    }
+  },
+  {
+    "id": "nt-krishna-udayasthamana",
+    "templeId": "tm-krishna",
+    "category": "GENERAL",
+    "important": false,
+    "publishedDaysAgo": 9,
+    "eventInDays": null,
+    "title": {
+      "en": "Udayasthamana Pooja bookings paused",
+      "ml": "ഉദയാസ്തമന പൂജ ബുക്കിങ് താൽക്കാലികമായി നിർത്തി"
+    },
+    "body": {
+      "en": "All Udayasthamana Pooja dates for this year are already booked, so new bookings are paused. The booking list for next year will open soon.",
+      "ml": "ഈ വർഷത്തെ എല്ലാ ഉദയാസ്തമന പൂജ തീയതികളും ബുക്ക് ചെയ്തുകഴിഞ്ഞതിനാൽ പുതിയ ബുക്കിങ് നിർത്തിവച്ചിരിക്കുന്നു. അടുത്ത വർഷത്തെ ബുക്കിങ് ഉടൻ ആരംഭിക്കും."
+    }
+  },
+  {
+    "id": "nt-shivaratri",
+    "templeId": "tm-mahadeva",
+    "category": "FESTIVAL",
+    "important": true,
+    "publishedDaysAgo": 2,
+    "eventInDays": 20,
+    "title": {
+      "en": "Shivaratri: night-long darshan and Jaladhara",
+      "ml": "ശിവരാത്രി: രാത്രി മുഴുവൻ ദർശനവും ജലധാരയും"
+    },
+    "body": {
+      "en": "On Shivaratri the temple stays open through the night. Special Jaladhara and Ksheera Dhara can be booked as vazhipadu. Parking will be at the school ground, 500 m from the temple.",
+      "ml": "ശിവരാത്രി ദിവസം രാത്രി മുഴുവൻ നട തുറന്നിരിക്കും. പ്രത്യേക ജലധാരയും ക്ഷീരധാരയും വഴിപാടായി ബുക്ക് ചെയ്യാം. ക്ഷേത്രത്തിൽ നിന്ന് 500 മീറ്റർ അകലെയുള്ള സ്കൂൾ മൈതാനത്താണ് പാർക്കിങ്."
+    }
+  },
+  {
+    "id": "nt-mahadeva-closure",
+    "templeId": "tm-mahadeva",
+    "category": "CLOSURE",
+    "important": true,
+    "publishedDaysAgo": 0,
+    "eventInDays": 2,
+    "title": {
+      "en": "Temple closed in the afternoon for kalasam",
+      "ml": "കലശത്തിനായി ഉച്ചയ്ക്ക് ശേഷം നട അടച്ചിടും"
+    },
+    "body": {
+      "en": "The temple will be closed from 12:00 pm to 6:00 pm for the purification ritual (kalasam). Morning and night darshan go ahead as usual.",
+      "ml": "ശുദ്ധികലശ ചടങ്ങുകൾക്കായി ഉച്ചയ്ക്ക് 12:00 മുതൽ വൈകുന്നേരം 6:00 വരെ നട അടച്ചിടും. രാവിലത്തെയും രാത്രിയിലെയും ദർശനം പതിവുപോലെ ഉണ്ടായിരിക്കും."
+    }
+  },
+  {
+    "id": "nt-mahadeva-pond",
+    "templeId": "tm-mahadeva",
+    "category": "GENERAL",
+    "important": false,
+    "publishedDaysAgo": 14,
+    "eventInDays": null,
+    "title": { "en": "Temple pond cleaning finished", "ml": "ക്ഷേത്രക്കുളം ശുചീകരണം പൂർത്തിയായി" },
+    "body": {
+      "en": "The temple pond has been cleaned and the steps repaired. Devotees can use the pond again from today. Please do not use soap or shampoo in the pond.",
+      "ml": "ക്ഷേത്രക്കുളം ശുചീകരിക്കുകയും പടവുകൾ നന്നാക്കുകയും ചെയ്തു. ഇന്നു മുതൽ ഭക്തർക്ക് കുളം വീണ്ടും ഉപയോഗിക്കാം. കുളത്തിൽ സോപ്പോ ഷാമ്പൂവോ ഉപയോഗിക്കരുത്."
+    }
+  },
+  {
+    "id": "nt-mandala",
+    "templeId": "tm-sastha",
+    "category": "FESTIVAL",
+    "important": true,
+    "publishedDaysAgo": 4,
+    "eventInDays": 21,
+    "title": {
+      "en": "Mandala season: darshan booking required",
+      "ml": "മണ്ഡലകാലം: ദർശനത്തിന് ബുക്കിങ് നിർബന്ധം"
+    },
+    "body": {
+      "en": "During the Mandala–Makaravilakku season every devotee needs a darshan slot booking. Carry the booking reference and a photo ID. Spot booking at the temple is limited.",
+      "ml": "മണ്ഡല–മകരവിളക്ക് കാലത്ത് എല്ലാ ഭക്തർക്കും ദർശന സ്ലോട്ട് ബുക്കിങ് നിർബന്ധമാണ്. ബുക്കിങ് നമ്പറും ഫോട്ടോ തിരിച്ചറിയൽ കാർഡും കൈവശം വയ്ക്കുക. ക്ഷേത്രത്തിലെ സ്പോട്ട് ബുക്കിങ് പരിമിതമാണ്."
+    }
+  },
+  {
+    "id": "nt-sastha-timing",
+    "templeId": "tm-sastha",
+    "category": "TIMING",
+    "important": false,
+    "publishedDaysAgo": 6,
+    "eventInDays": null,
+    "title": {
+      "en": "Neyyabhishekam counter now opens at 4:30 am",
+      "ml": "നെയ്യഭിഷേകം കൗണ്ടർ ഇനി പുലർച്ചെ 4:30-ന് തുറക്കും"
+    },
+    "body": {
+      "en": "The Neyyabhishekam counter opens at 4:30 am every day and closes at 11:00 am. Ghee can be handed in at counter 3.",
+      "ml": "നെയ്യഭിഷേകം കൗണ്ടർ ദിവസവും പുലർച്ചെ 4:30-ന് തുറന്ന് രാവിലെ 11:00-ന് അടയ്ക്കും. നെയ്യ് മൂന്നാം നമ്പർ കൗണ്ടറിൽ ഏൽപ്പിക്കാം."
+    }
+  },
+  {
+    "id": "nt-sastha-trek",
+    "templeId": "tm-sastha",
+    "category": "GENERAL",
+    "important": false,
+    "publishedDaysAgo": 11,
+    "eventInDays": null,
+    "title": {
+      "en": "Forest path open from 6:00 am to 6:00 pm",
+      "ml": "കാനനപാത രാവിലെ 6 മുതൽ വൈകുന്നേരം 6 വരെ"
+    },
+    "body": {
+      "en": "For safety, the forest path to the temple is open only from 6:00 am to 6:00 pm. Please walk in groups and follow the forest staff's directions.",
+      "ml": "സുരക്ഷ കണക്കിലെടുത്ത് ക്ഷേത്രത്തിലേക്കുള്ള കാനനപാത രാവിലെ 6:00 മുതൽ വൈകുന്നേരം 6:00 വരെ മാത്രമേ തുറക്കൂ. കൂട്ടമായി നടക്കുകയും വനപാലകരുടെ നിർദ്ദേശങ്ങൾ പാലിക്കുകയും ചെയ്യുക."
+    }
+  },
+  {
+    "id": "nt-online-booking",
+    "templeId": null,
+    "category": "GENERAL",
+    "important": false,
+    "publishedDaysAgo": 5,
+    "eventInDays": null,
+    "title": {
+      "en": "Book darshan and vazhipadu online",
+      "ml": "ദർശനവും വഴിപാടും ഓൺലൈനായി ബുക്ക് ചെയ്യാം"
+    },
+    "body": {
+      "en": "Darshan slots and vazhipadu offerings for all three temples can now be booked on this portal. Log in with your mobile number to see and cancel your bookings.",
+      "ml": "മൂന്നു ക്ഷേത്രങ്ങളിലെയും ദർശന സ്ലോട്ടുകളും വഴിപാടുകളും ഇനി ഈ പോർട്ടലിൽ ബുക്ക് ചെയ്യാം. ബുക്കിങ്ങുകൾ കാണാനും റദ്ദാക്കാനും ലോഗിൻ ചെയ്യുക."
+    }
+  },
+  {
+    "id": "nt-dress-code",
+    "templeId": null,
+    "category": "GENERAL",
+    "important": false,
+    "publishedDaysAgo": 20,
+    "eventInDays": null,
+    "title": {
+      "en": "Reminder: traditional dress code",
+      "ml": "ഓർമ്മപ്പെടുത്തൽ: പരമ്പരാഗത വസ്ത്രധാരണം"
+    },
+    "body": {
+      "en": "Men should wear a mundu without a shirt inside the nalambalam; women should wear a saree, churidar or long skirt. Mobile phones are not allowed inside the nalambalam.",
+      "ml": "നാലമ്പലത്തിനകത്ത് പുരുഷന്മാർ ഷർട്ട് ധരിക്കാതെ മുണ്ട് ധരിക്കണം; സ്ത്രീകൾ സാരി, ചുരിദാർ അല്ലെങ്കിൽ നീളൻ പാവാട ധരിക്കണം. നാലമ്പലത്തിനകത്ത് മൊബൈൽ ഫോൺ അനുവദനീയമല്ല."
+    }
+  }
+]

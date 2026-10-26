@@ -1,0 +1,38 @@
+[
+  {
+    "id": "u-devotee-1",
+    "username": "devotee",
+    "password": "devotee123",
+    "name": "Anil Kumar",
+    "phone": "9847012345",
+    "role": "DEVOTEE",
+    "templeId": null
+  },
+  {
+    "id": "u-devotee-2",
+    "username": "lakshmi",
+    "password": "lakshmi123",
+    "name": "Lakshmi Nair",
+    "phone": "9995012345",
+    "role": "DEVOTEE",
+    "templeId": null
+  },
+  {
+    "id": "u-staff-1",
+    "username": "staff",
+    "password": "staff123",
+    "name": "Ravi Menon",
+    "phone": "9447011111",
+    "role": "STAFF",
+    "templeId": "tm-krishna"
+  },
+  {
+    "id": "u-admin-1",
+    "username": "admin",
+    "password": "admin123",
+    "name": "Devaswom Admin",
+    "phone": "9400000000",
+    "role": "ADMIN",
+    "templeId": null
+  }
+]

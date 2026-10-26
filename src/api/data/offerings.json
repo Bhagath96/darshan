@@ -1,0 +1,482 @@
+[
+  {
+    "id": "tm-krishna--pushpanjali",
+    "templeId": "tm-krishna",
+    "name": {
+      "en": "Pushpanjali",
+      "ml": "പുഷ്പാഞ്ജലി"
+    },
+    "description": {
+      "en": "Flower offering with chanting of the deity's names.",
+      "ml": "ദേവനാമങ്ങൾ ജപിച്ചുള്ള പുഷ്പാർച്ചന."
+    },
+    "price": 30,
+    "isActive": true,
+    "category": "POOJA",
+    "image": "pushpanjali"
+  },
+  {
+    "id": "tm-krishna--archana",
+    "templeId": "tm-krishna",
+    "name": {
+      "en": "Archana",
+      "ml": "അർച്ചന"
+    },
+    "description": {
+      "en": "Chanting of the 108 names in the devotee's name and star.",
+      "ml": "ഭക്തന്റെ പേരിലും നാളിലും അഷ്ടോത്തര അർച്ചന."
+    },
+    "price": 50,
+    "isActive": true,
+    "category": "POOJA",
+    "image": "archana"
+  },
+  {
+    "id": "tm-krishna--neyvilakku",
+    "templeId": "tm-krishna",
+    "name": {
+      "en": "Neyvilakku",
+      "ml": "നെയ്‌വിളക്ക്"
+    },
+    "description": {
+      "en": "Ghee lamp lit before the sanctum.",
+      "ml": "ശ്രീകോവിലിനു മുന്നിൽ നെയ്‌വിളക്ക്."
+    },
+    "price": 20,
+    "isActive": true,
+    "category": "SPECIAL",
+    "image": "lamp"
+  },
+  {
+    "id": "tm-krishna--palpayasam",
+    "templeId": "tm-krishna",
+    "name": {
+      "en": "Palpayasam",
+      "ml": "പാൽപ്പായസം"
+    },
+    "description": {
+      "en": "Sweet rice and milk offering, shared as prasadam.",
+      "ml": "പ്രസാദമായി നൽകുന്ന പാൽപ്പായസം."
+    },
+    "price": 120,
+    "isActive": true,
+    "category": "NIVEDYAM",
+    "image": "payasam"
+  },
+  {
+    "id": "tm-krishna--ganapathi-homam",
+    "templeId": "tm-krishna",
+    "name": {
+      "en": "Ganapathi Homam",
+      "ml": "ഗണപതി ഹോമം"
+    },
+    "description": {
+      "en": "Fire ritual to Lord Ganesha for a good beginning.",
+      "ml": "ശുഭാരംഭത്തിനായി ഗണപതി ഹോമം."
+    },
+    "price": 300,
+    "isActive": false,
+    "category": "POOJA",
+    "image": "homam"
+  },
+  {
+    "id": "tm-krishna--ksheera-dhara",
+    "templeId": "tm-krishna",
+    "name": {
+      "en": "Ksheera Dhara",
+      "ml": "ക്ഷീരധാര"
+    },
+    "description": {
+      "en": "Continuous milk abhishekam over the idol.",
+      "ml": "വിഗ്രഹത്തിൽ പാലഭിഷേകം."
+    },
+    "price": 150,
+    "isActive": true,
+    "category": "ABHISHEKAM",
+    "image": "abhishekam"
+  },
+  {
+    "id": "tm-krishna--malar-nivedyam",
+    "templeId": "tm-krishna",
+    "name": {
+      "en": "Malar Nivedyam",
+      "ml": "മലർ നിവേദ്യം"
+    },
+    "description": {
+      "en": "Offering of puffed rice.",
+      "ml": "മലർ നിവേദ്യം."
+    },
+    "price": 40,
+    "isActive": true,
+    "category": "NIVEDYAM",
+    "image": "nivedyam"
+  },
+  {
+    "id": "tm-krishna--thrimadhuram",
+    "templeId": "tm-krishna",
+    "name": {
+      "en": "Thrimadhuram",
+      "ml": "ത്രിമധുരം"
+    },
+    "description": {
+      "en": "Offering of banana, jaggery and honey.",
+      "ml": "പഴം, ശർക്കര, തേൻ ചേർന്ന നിവേദ്യം."
+    },
+    "price": 60,
+    "isActive": true,
+    "category": "NIVEDYAM",
+    "image": "nivedyam"
+  },
+  {
+    "id": "tm-krishna--udayasthamana-pooja",
+    "templeId": "tm-krishna",
+    "name": {
+      "en": "Udayasthamana Pooja",
+      "ml": "ഉദയാസ്തമന പൂജ"
+    },
+    "description": {
+      "en": "Poojas from sunrise to sunset. Booked through the office.",
+      "ml": "ഉദയം മുതൽ അസ്തമയം വരെയുള്ള പൂജകൾ."
+    },
+    "price": 5000,
+    "isActive": false,
+    "category": "SPECIAL",
+    "image": "special"
+  },
+  {
+    "id": "tm-krishna--vennanivedyam",
+    "templeId": "tm-krishna",
+    "name": {
+      "en": "Venna Nivedyam",
+      "ml": "വെണ്ണ നിവേദ്യം"
+    },
+    "description": {
+      "en": "Butter offering, a favourite of Lord Krishna.",
+      "ml": "ശ്രീകൃഷ്ണന് പ്രിയപ്പെട്ട വെണ്ണ നിവേദ്യം."
+    },
+    "price": 35,
+    "isActive": true,
+    "category": "NIVEDYAM",
+    "image": "nivedyam"
+  },
+  {
+    "id": "tm-mahadeva--pushpanjali",
+    "templeId": "tm-mahadeva",
+    "name": {
+      "en": "Pushpanjali",
+      "ml": "പുഷ്പാഞ്ജലി"
+    },
+    "description": {
+      "en": "Flower offering with chanting of the deity's names.",
+      "ml": "ദേവനാമങ്ങൾ ജപിച്ചുള്ള പുഷ്പാർച്ചന."
+    },
+    "price": 30,
+    "isActive": true,
+    "category": "POOJA",
+    "image": "pushpanjali"
+  },
+  {
+    "id": "tm-mahadeva--archana",
+    "templeId": "tm-mahadeva",
+    "name": {
+      "en": "Archana",
+      "ml": "അർച്ചന"
+    },
+    "description": {
+      "en": "Chanting of the 108 names in the devotee's name and star.",
+      "ml": "ഭക്തന്റെ പേരിലും നാളിലും അഷ്ടോത്തര അർച്ചന."
+    },
+    "price": 50,
+    "isActive": true,
+    "category": "POOJA",
+    "image": "archana"
+  },
+  {
+    "id": "tm-mahadeva--neyvilakku",
+    "templeId": "tm-mahadeva",
+    "name": {
+      "en": "Neyvilakku",
+      "ml": "നെയ്‌വിളക്ക്"
+    },
+    "description": {
+      "en": "Ghee lamp lit before the sanctum.",
+      "ml": "ശ്രീകോവിലിനു മുന്നിൽ നെയ്‌വിളക്ക്."
+    },
+    "price": 20,
+    "isActive": true,
+    "category": "SPECIAL",
+    "image": "lamp"
+  },
+  {
+    "id": "tm-mahadeva--palpayasam",
+    "templeId": "tm-mahadeva",
+    "name": {
+      "en": "Palpayasam",
+      "ml": "പാൽപ്പായസം"
+    },
+    "description": {
+      "en": "Sweet rice and milk offering, shared as prasadam.",
+      "ml": "പ്രസാദമായി നൽകുന്ന പാൽപ്പായസം."
+    },
+    "price": 120,
+    "isActive": true,
+    "category": "NIVEDYAM",
+    "image": "payasam"
+  },
+  {
+    "id": "tm-mahadeva--ganapathi-homam",
+    "templeId": "tm-mahadeva",
+    "name": {
+      "en": "Ganapathi Homam",
+      "ml": "ഗണപതി ഹോമം"
+    },
+    "description": {
+      "en": "Fire ritual to Lord Ganesha for a good beginning.",
+      "ml": "ശുഭാരംഭത്തിനായി ഗണപതി ഹോമം."
+    },
+    "price": 300,
+    "isActive": true,
+    "category": "POOJA",
+    "image": "homam"
+  },
+  {
+    "id": "tm-mahadeva--ksheera-dhara",
+    "templeId": "tm-mahadeva",
+    "name": {
+      "en": "Ksheera Dhara",
+      "ml": "ക്ഷീരധാര"
+    },
+    "description": {
+      "en": "Continuous milk abhishekam over the idol.",
+      "ml": "വിഗ്രഹത്തിൽ പാലഭിഷേകം."
+    },
+    "price": 150,
+    "isActive": true,
+    "category": "ABHISHEKAM",
+    "image": "abhishekam"
+  },
+  {
+    "id": "tm-mahadeva--malar-nivedyam",
+    "templeId": "tm-mahadeva",
+    "name": {
+      "en": "Malar Nivedyam",
+      "ml": "മലർ നിവേദ്യം"
+    },
+    "description": {
+      "en": "Offering of puffed rice.",
+      "ml": "മലർ നിവേദ്യം."
+    },
+    "price": 40,
+    "isActive": true,
+    "category": "NIVEDYAM",
+    "image": "nivedyam"
+  },
+  {
+    "id": "tm-mahadeva--thrimadhuram",
+    "templeId": "tm-mahadeva",
+    "name": {
+      "en": "Thrimadhuram",
+      "ml": "ത്രിമധുരം"
+    },
+    "description": {
+      "en": "Offering of banana, jaggery and honey.",
+      "ml": "പഴം, ശർക്കര, തേൻ ചേർന്ന നിവേദ്യം."
+    },
+    "price": 60,
+    "isActive": false,
+    "category": "NIVEDYAM",
+    "image": "nivedyam"
+  },
+  {
+    "id": "tm-mahadeva--udayasthamana-pooja",
+    "templeId": "tm-mahadeva",
+    "name": {
+      "en": "Udayasthamana Pooja",
+      "ml": "ഉദയാസ്തമന പൂജ"
+    },
+    "description": {
+      "en": "Poojas from sunrise to sunset. Booked through the office.",
+      "ml": "ഉദയം മുതൽ അസ്തമയം വരെയുള്ള പൂജകൾ."
+    },
+    "price": 5000,
+    "isActive": false,
+    "category": "SPECIAL",
+    "image": "special"
+  },
+  {
+    "id": "tm-mahadeva--jaladhara",
+    "templeId": "tm-mahadeva",
+    "name": {
+      "en": "Jaladhara",
+      "ml": "ജലധാര"
+    },
+    "description": {
+      "en": "Continuous water abhishekam for Lord Shiva.",
+      "ml": "ശിവന് ജലധാര."
+    },
+    "price": 60,
+    "isActive": true,
+    "category": "ABHISHEKAM",
+    "image": "abhishekam"
+  },
+  {
+    "id": "tm-sastha--pushpanjali",
+    "templeId": "tm-sastha",
+    "name": {
+      "en": "Pushpanjali",
+      "ml": "പുഷ്പാഞ്ജലി"
+    },
+    "description": {
+      "en": "Flower offering with chanting of the deity's names.",
+      "ml": "ദേവനാമങ്ങൾ ജപിച്ചുള്ള പുഷ്പാർച്ചന."
+    },
+    "price": 30,
+    "isActive": true,
+    "category": "POOJA",
+    "image": "pushpanjali"
+  },
+  {
+    "id": "tm-sastha--archana",
+    "templeId": "tm-sastha",
+    "name": {
+      "en": "Archana",
+      "ml": "അർച്ചന"
+    },
+    "description": {
+      "en": "Chanting of the 108 names in the devotee's name and star.",
+      "ml": "ഭക്തന്റെ പേരിലും നാളിലും അഷ്ടോത്തര അർച്ചന."
+    },
+    "price": 50,
+    "isActive": true,
+    "category": "POOJA",
+    "image": "archana"
+  },
+  {
+    "id": "tm-sastha--neyvilakku",
+    "templeId": "tm-sastha",
+    "name": {
+      "en": "Neyvilakku",
+      "ml": "നെയ്‌വിളക്ക്"
+    },
+    "description": {
+      "en": "Ghee lamp lit before the sanctum.",
+      "ml": "ശ്രീകോവിലിനു മുന്നിൽ നെയ്‌വിളക്ക്."
+    },
+    "price": 20,
+    "isActive": true,
+    "category": "SPECIAL",
+    "image": "lamp"
+  },
+  {
+    "id": "tm-sastha--palpayasam",
+    "templeId": "tm-sastha",
+    "name": {
+      "en": "Palpayasam",
+      "ml": "പാൽപ്പായസം"
+    },
+    "description": {
+      "en": "Sweet rice and milk offering, shared as prasadam.",
+      "ml": "പ്രസാദമായി നൽകുന്ന പാൽപ്പായസം."
+    },
+    "price": 120,
+    "isActive": true,
+    "category": "NIVEDYAM",
+    "image": "payasam"
+  },
+  {
+    "id": "tm-sastha--ganapathi-homam",
+    "templeId": "tm-sastha",
+    "name": {
+      "en": "Ganapathi Homam",
+      "ml": "ഗണപതി ഹോമം"
+    },
+    "description": {
+      "en": "Fire ritual to Lord Ganesha for a good beginning.",
+      "ml": "ശുഭാരംഭത്തിനായി ഗണപതി ഹോമം."
+    },
+    "price": 300,
+    "isActive": true,
+    "category": "POOJA",
+    "image": "homam"
+  },
+  {
+    "id": "tm-sastha--ksheera-dhara",
+    "templeId": "tm-sastha",
+    "name": {
+      "en": "Ksheera Dhara",
+      "ml": "ക്ഷീരധാര"
+    },
+    "description": {
+      "en": "Continuous milk abhishekam over the idol.",
+      "ml": "വിഗ്രഹത്തിൽ പാലഭിഷേകം."
+    },
+    "price": 150,
+    "isActive": true,
+    "category": "ABHISHEKAM",
+    "image": "abhishekam"
+  },
+  {
+    "id": "tm-sastha--malar-nivedyam",
+    "templeId": "tm-sastha",
+    "name": {
+      "en": "Malar Nivedyam",
+      "ml": "മലർ നിവേദ്യം"
+    },
+    "description": {
+      "en": "Offering of puffed rice.",
+      "ml": "മലർ നിവേദ്യം."
+    },
+    "price": 40,
+    "isActive": false,
+    "category": "NIVEDYAM",
+    "image": "nivedyam"
+  },
+  {
+    "id": "tm-sastha--thrimadhuram",
+    "templeId": "tm-sastha",
+    "name": {
+      "en": "Thrimadhuram",
+      "ml": "ത്രിമധുരം"
+    },
+    "description": {
+      "en": "Offering of banana, jaggery and honey.",
+      "ml": "പഴം, ശർക്കര, തേൻ ചേർന്ന നിവേദ്യം."
+    },
+    "price": 60,
+    "isActive": true,
+    "category": "NIVEDYAM",
+    "image": "nivedyam"
+  },
+  {
+    "id": "tm-sastha--udayasthamana-pooja",
+    "templeId": "tm-sastha",
+    "name": {
+      "en": "Udayasthamana Pooja",
+      "ml": "ഉദയാസ്തമന പൂജ"
+    },
+    "description": {
+      "en": "Poojas from sunrise to sunset. Booked through the office.",
+      "ml": "ഉദയം മുതൽ അസ്തമയം വരെയുള്ള പൂജകൾ."
+    },
+    "price": 5000,
+    "isActive": false,
+    "category": "SPECIAL",
+    "image": "special"
+  },
+  {
+    "id": "tm-sastha--neyyabhishekam",
+    "templeId": "tm-sastha",
+    "name": {
+      "en": "Neyyabhishekam",
+      "ml": "നെയ്യഭിഷേകം"
+    },
+    "description": {
+      "en": "Ghee abhishekam for Lord Ayyappa.",
+      "ml": "അയ്യപ്പന് നെയ്യഭിഷേകം."
+    },
+    "price": 100,
+    "isActive": true,
+    "category": "ABHISHEKAM",
+    "image": "abhishekam"
+  }
+]
