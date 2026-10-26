@@ -10,7 +10,7 @@ import {
 } from 'react-hook-form'
 import { z } from '@/lib/zod'
 import { EditorDialog } from '@/components/admin/EditorDialog'
-import { EditButton } from '@/components/admin/fields'
+import { EditButton, IconButton } from '@/components/admin/fields'
 import { TempleScopeField } from '@/components/admin/TempleScopeField'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { FormField } from '@/components/common/FormField'
@@ -264,7 +264,7 @@ function NoticeRow({ notice }: { notice: Notice }) {
         <p className="font-medium">{noticeTitle}</p>
         <NoticeMeta notice={notice} temple={temples.data.find((x) => x.id === notice.templeId)} />
       </div>
-      <div className="flex shrink-0 flex-wrap gap-2">
+      <div className="flex shrink-0 items-center gap-1">
         <EditorDialog
           wide
           trigger={<EditButton label={t('manage.editNoticeOf', { title: noticeTitle })} />}
@@ -275,14 +275,9 @@ function NoticeRow({ notice }: { notice: Notice }) {
         </EditorDialog>
         <ConfirmDialog
           trigger={
-            <Button
-              variant="destructive"
-              className="h-11 shrink-0 px-3"
-              aria-label={t('adminNotices.deleteOf', { title: noticeTitle })}
-            >
+            <IconButton label={t('adminNotices.deleteOf', { title: noticeTitle })} tone="danger">
               <Trash2 aria-hidden="true" />
-              {t('adminNotices.delete')}
-            </Button>
+            </IconButton>
           }
           title={t('adminNotices.confirmTitle')}
           description={t('adminNotices.confirmText', { title: noticeTitle })}

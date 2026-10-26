@@ -197,8 +197,8 @@ function UserRow({ user }: { user: AuthUser }) {
         <RoleBadge user={user} />
       </RCell>
       <RCell label={t('common.temple')}>{temple ? pick(temple.name) : '—'}</RCell>
-      <RCell className="max-md:justify-end">
-        <span className="flex flex-wrap justify-end gap-2 md:justify-start">
+      <RCell>
+        <span className="flex flex-wrap gap-1">
           <EditorDialog
             trigger={<EditButton label={t('manage.editOf', { name: user.name })} />}
             title={t('manage.editUser')}

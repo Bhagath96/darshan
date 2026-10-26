@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useT } from '@/i18n'
 import { IMAGE_KEYS, imageFor } from '@/lib/images'
+import { cn } from '@/lib/utils'
 
 interface BilingualFieldProps {
   id: string
@@ -84,10 +85,39 @@ export function ImageField({
 }
 
 /** Opens an add dialog. Passes other props on, so it works as a dialog trigger. */
-export function AddButton({ children, ...props }: ComponentProps<typeof Button>) {
+export function AddButton({ children, className, ...props }: ComponentProps<typeof Button>) {
   return (
-    <Button className="h-11 px-4" {...props}>
+    <Button size="lg" className={cn('px-3', className)} {...props}>
       <Plus aria-hidden="true" />
+      {children}
+    </Button>
+  )
+}
+
+/**
+ * A small icon-only action for table rows. `label` is its accessible name and tooltip.
+ * Passes other props on, so it also works as a dialog trigger.
+ */
+export function IconButton({
+  label,
+  tone = 'default',
+  className,
+  children,
+  ...props
+}: ComponentProps<typeof Button> & { label: string; tone?: 'default' | 'danger' }) {
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      aria-label={label}
+      title={label}
+      className={cn(
+        'text-muted-foreground hover:text-foreground',
+        tone === 'danger' && 'hover:bg-destructive/10 hover:text-destructive',
+        className,
+      )}
+      {...props}
+    >
       {children}
     </Button>
   )
@@ -95,12 +125,10 @@ export function AddButton({ children, ...props }: ComponentProps<typeof Button>)
 
 /** Opens an edit dialog. `label` names the item for screen readers. */
 export function EditButton({ label, ...props }: ComponentProps<typeof Button> & { label: string }) {
-  const { t } = useT()
   return (
-    <Button variant="outline" className="h-11 px-3" aria-label={label} {...props}>
+    <IconButton label={label} {...props}>
       <Pencil aria-hidden="true" />
-      {t('manage.edit')}
-    </Button>
+    </IconButton>
   )
 }
 
@@ -125,10 +153,9 @@ export function DeleteButton({
   return (
     <ConfirmDialog
       trigger={
-        <Button variant="destructive" className="h-11 px-3" aria-label={label} disabled={disabled}>
+        <IconButton label={label} tone="danger" disabled={disabled}>
           <Trash2 aria-hidden="true" />
-          {t('manage.delete')}
-        </Button>
+        </IconButton>
       }
       title={title}
       description={description}

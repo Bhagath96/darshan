@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Lock, LockOpen } from 'lucide-react'
+import { Check, Lock, LockOpen } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { EditorDialog } from '@/components/admin/EditorDialog'
-import { AddButton, DeleteButton } from '@/components/admin/fields'
+import { AddButton, DeleteButton, IconButton } from '@/components/admin/fields'
 import { RBody, RCell, RHead, RHeader, RRow, RTable } from '@/components/admin/ResponsiveTable'
 import { TempleScopeField } from '@/components/admin/TempleScopeField'
 import { FormField } from '@/components/common/FormField'
@@ -11,7 +11,6 @@ import { NativeSelect } from '@/components/common/NativeSelect'
 import { PageHeading } from '@/components/common/PageTitle'
 import { EmptyState, ErrorState, LoadingState } from '@/components/common/states'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useFieldMessage } from '@/hooks/useFieldMessage'
 import { useManagedTempleId } from '@/hooks/useManagedTempleId'
@@ -162,7 +161,7 @@ function SlotRow({ slot }: { slot: DarshanSlot }) {
   return (
     <RRow>
       <RCell label={t('adminSlots.time')}>
-        <span className="flex flex-wrap items-center justify-end gap-2 md:justify-start">
+        <span className="flex flex-wrap items-center gap-1">
           <span className="font-medium tabular-nums">{label}</span>
           {started && <Badge variant="outline">{t('adminSlots.started')}</Badge>}
           {slot.remainingTickets === 0 && <Badge variant="secondary">{t('adminSlots.full')}</Badge>}
@@ -192,7 +191,7 @@ function SlotRow({ slot }: { slot: DarshanSlot }) {
               aria-label={t('adminSlots.capacityOf', { time: label })}
               aria-invalid={Boolean(error)}
               aria-describedby={error ? `${slot.id}-error` : undefined}
-              className="h-11 w-24"
+              className="h-8 w-20"
             />
             {error && (
               <p id={`${slot.id}-error`} className="max-w-48 text-xs font-medium text-destructive">
@@ -200,38 +199,33 @@ function SlotRow({ slot }: { slot: DarshanSlot }) {
               </p>
             )}
           </div>
-          <Button
+          <IconButton
             type="submit"
-            variant="outline"
-            className="h-11 px-3"
+            label={t('adminSlots.saveOf', { time: label })}
             disabled={saving || capacity === String(slot.totalCapacity)}
-            aria-label={t('adminSlots.saveOf', { time: label })}
           >
-            {t('common.save')}
-          </Button>
+            <Check aria-hidden="true" />
+          </IconButton>
         </form>
       </RCell>
       <RCell label={t('adminSlots.booking')}>
-        <span className="flex flex-wrap items-center justify-end gap-2 md:justify-start">
+        <span className="flex flex-wrap items-center gap-1">
           <Badge variant={slot.isBlocked ? 'destructive' : 'secondary'}>
             {slot.isBlocked ? t('adminSlots.closed') : t('adminSlots.isOpen')}
           </Badge>
-          <Button
-            variant="outline"
-            className="h-11 px-3"
-            disabled={saving}
-            aria-label={
+          <IconButton
+            label={
               slot.isBlocked
                 ? t('adminSlots.openOf', { time: label })
                 : t('adminSlots.closeOf', { time: label })
             }
+            disabled={saving}
             onClick={() =>
               dispatch(slotUpdateRequested({ slotId: slot.id, isBlocked: !slot.isBlocked }))
             }
           >
             {slot.isBlocked ? <LockOpen aria-hidden="true" /> : <Lock aria-hidden="true" />}
-            {slot.isBlocked ? t('adminSlots.open') : t('adminSlots.close')}
-          </Button>
+          </IconButton>
           <DeleteButton
             label={t('manage.deleteSlotOf', { time: label })}
             title={t('manage.deleteSlotTitle', { time: label })}

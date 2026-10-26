@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
+import { Ban } from 'lucide-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { EditorDialog } from '@/components/admin/EditorDialog'
-import { DeleteButton, EditButton } from '@/components/admin/fields'
+import { DeleteButton, EditButton, IconButton } from '@/components/admin/fields'
 import { PhoneSearchField } from '@/components/admin/PhoneSearchField'
 import { RBody, RCell, RHead, RHeader, RRow, RTable } from '@/components/admin/ResponsiveTable'
 import { TempleScopeField } from '@/components/admin/TempleScopeField'
@@ -124,7 +125,7 @@ function BookingActions({ booking }: { booking: Booking }) {
   const user = useAppSelector(selectCurrentUser)
   const cancelling = useAppSelector((s) => booking.id in s.adminBookings.cancelling)
   return (
-    <span className="flex flex-wrap items-center justify-end gap-2 md:justify-start">
+    <span className="flex flex-wrap items-center gap-1">
       <CancelCell booking={booking} />
       {can(user?.role, 'booking:manage') && (
         <>
@@ -168,14 +169,13 @@ function CancelCell({ booking }: { booking: Booking }) {
   return (
     <ConfirmDialog
       trigger={
-        <Button
-          variant="destructive"
-          className="h-11 px-3"
+        <IconButton
+          label={t('adminBookings.cancelOf', { ref: booking.bookingRef })}
+          tone="danger"
           disabled={cancelling}
-          aria-label={t('adminBookings.cancelOf', { ref: booking.bookingRef })}
         >
-          {t('adminBookings.cancel')}
-        </Button>
+          <Ban aria-hidden="true" />
+        </IconButton>
       }
       title={t('adminBookings.confirmTitle', { ref: booking.bookingRef })}
       description={t('adminBookings.confirmText', {
@@ -330,13 +330,13 @@ export function AdminBookingsPage() {
                       {b.bookingRef}
                     </RCell>
                     <RCell label={t('adminBookings.devotee')}>
-                      <span className="text-end md:text-start">
+                      <span className="">
                         <span className="block font-medium">{b.devoteeName}</span>
                         <span className="block text-muted-foreground tabular-nums">{b.phone}</span>
                       </span>
                     </RCell>
                     <RCell label={t('adminBookings.darshan')}>
-                      <span className="text-end md:text-start">
+                      <span className="">
                         <span className="block">
                           {date(b.date)}, {time(b.startsAt)}
                         </span>
@@ -351,7 +351,7 @@ export function AdminBookingsPage() {
                     <RCell label={t('common.status')}>
                       <StatusBadge kind="booking" status={b.status} />
                     </RCell>
-                    <RCell className="max-md:justify-end">
+                    <RCell>
                       <BookingActions booking={b} />
                     </RCell>
                   </RRow>

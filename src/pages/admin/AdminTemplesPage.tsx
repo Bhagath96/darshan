@@ -250,7 +250,7 @@ function TempleCard({ temple }: { temple: Temple }) {
         </p>
         <p className="text-sm text-muted-foreground tabular-nums">{temple.contactPhone}</p>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex items-center gap-1">
         <EditorDialog
           wide
           trigger={<EditButton label={t('manage.editOf', { name })} />}

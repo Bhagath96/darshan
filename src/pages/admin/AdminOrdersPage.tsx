@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Download, Loader2 } from 'lucide-react'
+import { Ban, Download, Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { EditorDialog } from '@/components/admin/EditorDialog'
-import { DeleteButton, EditButton } from '@/components/admin/fields'
+import { DeleteButton, EditButton, IconButton } from '@/components/admin/fields'
 import { PhoneSearchField } from '@/components/admin/PhoneSearchField'
 import { RBody, RCell, RHead, RHeader, RRow, RTable } from '@/components/admin/ResponsiveTable'
 import { TempleScopeField } from '@/components/admin/TempleScopeField'
@@ -130,7 +130,7 @@ function OrderActions({ order }: { order: Order }) {
   const user = useAppSelector(selectCurrentUser)
   const cancelling = useAppSelector((s) => order.id in s.orders.cancelling)
   return (
-    <span className="flex flex-wrap items-center justify-end gap-2 md:justify-start">
+    <span className="flex flex-wrap items-center gap-1">
       <CancelOrderButton order={order} />
       {can(user?.role, 'order:manage') && (
         <>
@@ -170,14 +170,13 @@ function CancelOrderButton({ order }: { order: Order }) {
   return (
     <ConfirmDialog
       trigger={
-        <Button
-          variant="destructive"
-          className="h-11 px-3"
+        <IconButton
+          label={t('adminOrders.cancelOf', { number: order.orderNumber })}
+          tone="danger"
           disabled={cancelling}
-          aria-label={t('adminOrders.cancelOf', { number: order.orderNumber })}
         >
-          {t('adminOrders.cancel')}
-        </Button>
+          <Ban aria-hidden="true" />
+        </IconButton>
       }
       title={t('adminOrders.confirmTitle', { number: order.orderNumber })}
       description={t('adminOrders.confirmText', {
@@ -341,7 +340,7 @@ export function AdminOrdersPage() {
                 return (
                   <RRow key={o.id}>
                     <RCell label={t('adminOrders.order')}>
-                      <span className="text-end md:text-start">
+                      <span className="">
                         <span className="block font-mono font-medium">{o.orderNumber}</span>
                         {temple && (
                           <span className="block text-muted-foreground">{pick(temple.name)}</span>
@@ -349,7 +348,7 @@ export function AdminOrdersPage() {
                       </span>
                     </RCell>
                     <RCell label={t('adminOrders.devotee')}>
-                      <span className="text-end md:text-start">
+                      <span className="">
                         <span className="block font-medium">{o.devoteeName}</span>
                         <span className="block text-muted-foreground tabular-nums">{o.phone}</span>
                         <span className="block text-muted-foreground">
@@ -358,7 +357,7 @@ export function AdminOrdersPage() {
                       </span>
                     </RCell>
                     <RCell label={t('adminOrders.offerings')}>
-                      <ul className="text-end md:text-start">
+                      <ul className="">
                         {o.items.map((i) => (
                           <li key={i.offeringId}>
                             {pick(i.offeringName)} × {i.quantity}
@@ -369,13 +368,13 @@ export function AdminOrdersPage() {
                     <RCell label={t('adminOrders.offeringDate')} className="whitespace-nowrap">
                       {date(o.offeringDate)}
                     </RCell>
-                    <RCell label={t('adminOrders.total')} className="md:text-end">
+                    <RCell label={t('adminOrders.total')} className="text-end">
                       <Price amount={o.totalAmount} className="font-medium" />
                     </RCell>
                     <RCell label={t('common.status')}>
                       <StatusBadge kind="order" status={o.status} />
                     </RCell>
-                    <RCell className="max-md:justify-end">
+                    <RCell>
                       <OrderActions order={o} />
                     </RCell>
                   </RRow>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Check } from 'lucide-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useWatch } from 'react-hook-form'
 import { EditorDialog } from '@/components/admin/EditorDialog'
@@ -7,6 +8,7 @@ import {
   BilingualField,
   DeleteButton,
   EditButton,
+  IconButton,
   ImageField,
 } from '@/components/admin/fields'
 import { RBody, RCell, RHead, RHeader, RRow, RTable } from '@/components/admin/ResponsiveTable'
@@ -15,7 +17,6 @@ import { FormField } from '@/components/common/FormField'
 import { NativeSelect } from '@/components/common/NativeSelect'
 import { PageHeading } from '@/components/common/PageTitle'
 import { EmptyState, ErrorState, LoadingState } from '@/components/common/states'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { useFieldMessage } from '@/hooks/useFieldMessage'
@@ -211,7 +212,7 @@ function OfferingRow({ offering }: { offering: Offering }) {
               aria-label={t('adminRates.priceOf', { name })}
               aria-invalid={Boolean(error)}
               aria-describedby={error ? `${offering.id}-error` : undefined}
-              className="h-11 w-28"
+              className="h-8 w-24"
             />
             {error && (
               <p
@@ -222,19 +223,17 @@ function OfferingRow({ offering }: { offering: Offering }) {
               </p>
             )}
           </div>
-          <Button
+          <IconButton
             type="submit"
-            variant="outline"
-            className="h-11 px-3"
+            label={t('adminRates.saveOf', { name })}
             disabled={saving || price === String(offering.price)}
-            aria-label={t('adminRates.saveOf', { name })}
           >
-            {t('common.save')}
-          </Button>
+            <Check aria-hidden="true" />
+          </IconButton>
         </form>
       </RCell>
       <RCell label={t('adminRates.available')}>
-        <span className="flex min-h-11 items-center gap-3">
+        <span className="flex items-center gap-2">
           <Switch
             checked={offering.isActive}
             disabled={saving}
@@ -248,8 +247,8 @@ function OfferingRow({ offering }: { offering: Offering }) {
           </span>
         </span>
       </RCell>
-      <RCell className="max-md:justify-end">
-        <span className="flex flex-wrap justify-end gap-2 md:justify-start">
+      <RCell>
+        <span className="flex flex-wrap gap-1">
           <EditorDialog
             wide
             trigger={<EditButton label={t('manage.editOf', { name })} disabled={saving} />}
